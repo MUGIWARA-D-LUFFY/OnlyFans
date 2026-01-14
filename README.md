@@ -1,4 +1,4 @@
-# Adult Subscription Platform
+# OnlyFans
 
 A full-stack adult content subscription platform built with Next.js, NestJS, PostgreSQL, and Redis.
 
@@ -38,7 +38,7 @@ A full-stack adult content subscription platform built with Next.js, NestJS, Pos
 ## Project Structure
 
 ```
-adult-subscription-platform/
+OnlyFans/
 ├── frontend/          # Next.js frontend application
 ├── backend/           # NestJS backend API
 ├── docs/              # Documentation
@@ -231,7 +231,7 @@ Private - All rights reserved
 
 ## Notes
 
-- This is a template/starting point for an adult subscription platform
+- This is a template/starting point for OnlyFans platform
 - Payment gateway integration needs to be completed
 - Media storage integration needs to be completed
 - Watermarking service needs to be implemented

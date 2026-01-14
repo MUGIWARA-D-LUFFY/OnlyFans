@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     shortcut: '/logo.png',
   },
   openGraph: {
-    title: "Adult Subscription Platform",
+    title: "OnlyFans",
     description: "Premium content subscription platform",
     images: ['/banner.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Adult Subscription Platform",
+    title: "OnlyFans",
     description: "Premium content subscription platform",
     images: ['/banner.png'],
   },

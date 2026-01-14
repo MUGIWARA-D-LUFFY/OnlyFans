@@ -1,6 +1,6 @@
 # Backend API
 
-NestJS backend for the adult subscription platform.
+NestJS backend for OnlyFans.
 
 ## Setup
 
