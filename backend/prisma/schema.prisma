@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  username    String?  @unique
+  password    String
+  role        Role     @default(USER)
+  ageVerified Boolean  @default(false)
+  avatarUrl   String?  // Profile picture URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  creator     Creator?
+  subscriptions Subscription[]
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  transactions    Transaction[]
+  likes           Like[]
+  comments        Comment[]
+  follows         Follow[]    @relation("Follower")
+  followers       Follow[]    @relation("Following")
+}
+
+model Creator {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  subscriptionFee  Float     @default(0)
+  bio              String?
+  coverImageUrl    String?   // Banner/cover image URL
+  verified         Boolean   @default(false)
+  verificationDate DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts            Post[]
+  subscriptions    Subscription[]
+  stats            CreatorStats?
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String
+  creatorId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creator   Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, creatorId])
+  @@index([userId])
+  @@index([creatorId])
+}
+
+model Post {
+  id           String         @id @default(uuid())
+  creatorId    String
+  title        String?
+  mediaUrl     String
+  previewUrl   String?
+  mediaType    String         // 'image' | 'video'
+  isPaid       Boolean        @default(false)
+  price        Float?
+  views        Int            @default(0)
+  likeCount    Int            @default(0)
+  commentCount Int            @default(0)
+  visibility   PostVisibility @default(PUBLIC)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  creator      Creator        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  likes        Like[]
+  comments     Comment[]
+
+  @@index([creatorId])
+  @@index([createdAt])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  isPaid     Boolean  @default(false)
+  price      Float?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Transaction {
+  id        String          @id @default(uuid())
+  userId    String
+  creatorId String?
+  amount    Float
+  type      TransactionType
+  status    String          @default("pending") // 'pending' | 'completed' | 'failed'
+  metadata  String?         // JSON string for additional data
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([creatorId])
+  @@index([createdAt])
+}
+
+enum Role {
+  USER
+  CREATOR
+  ADMIN
+}
+
+enum TransactionType {
+  SUBSCRIPTION
+  TIP
+  PPV
+  MESSAGE
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  fromUserId String?
+  postId    String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([postId])
+  @@index([createdAt])
+}
+
+model UserList {
+  id        String         @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime       @default(now())
+  items     UserListItem[]
+
+  @@index([userId])
+}
+
+model UserListItem {
+  id         String   @id @default(uuid())
+  listId     String
+  targetUserId String
+  createdAt  DateTime @default(now())
+  list       UserList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, targetUserId])
+  @@index([listId])
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  MENTION
+  SUBSCRIPTION
+  TIP
+  PROMOTION
+  SYSTEM
+}
+
+enum PostVisibility {
+  PUBLIC
+  SUBSCRIBERS
+  PAID
+}
+
+model Follow {
+  id         String   @id @default(uuid())
+  followerId String
+  creatorId  String
+  createdAt  DateTime @default(now())
+
+  follower   User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  creator    User     @relation("Following", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, creatorId])
+  @@index([followerId])
+  @@index([creatorId])
+}
+
+model CreatorStats {
+  creatorId   String   @id
+  totalLikes  Int      @default(0)
+  totalPosts  Int      @default(0)
+  totalViews  Int      @default(0)
+  subscribers Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  creator     Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
