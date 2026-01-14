@@ -1,0 +1,268 @@
+/* OnlyFans-Style Design System */
+
+:root {
+  /* Primary Brand Color */
+  --primary-blue: #00AFF0;
+
+  /* Neutral Palette */
+  --white: #ffffff;
+  --light-gray: #f1f3f5;
+  --border-gray: #e6e6e6;
+  --text-black: #000000;
+  --text-gray: #6b7280;
+
+  /* Typography Sizes */
+  --title: 18px;
+  --body: 15px;
+  --meta: 13px;
+  --caption: 12px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-full: 999px;
+
+  /* Transitions */
+  --transition-fast: all 0.15s ease-in-out;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--white);
+  color: var(--text-black);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: var(--body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Card System */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-gray);
+}
+
+/* Button System */
+.button-primary {
+  background: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 600;
+  font-size: var(--body);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.button-primary:hover {
+  background: #0099d6;
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 600;
+  font-size: var(--body);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.button-secondary:hover {
+  background: var(--light-gray);
+}
+
+/* Form Inputs */
+input,
+textarea,
+select {
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  transition: var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+}
+
+/* Media Container */
+.media {
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.media img,
+.media video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Icon System */
+.icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-gray);
+  transition: var(--transition-fast);
+}
+
+.icon:hover {
+  color: var(--primary-blue);
+}
+
+/* Separators */
+.separator {
+  border-bottom: 1px solid var(--border-gray);
+}
+
+/* Layout Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Feed Layout */
+.feed-container {
+  display: flex;
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feed-main {
+  flex: 1;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.sidebar {
+  width: 280px;
+  position: sticky;
+  top: var(--spacing-lg);
+  height: fit-content;
+}
+
+/* Typography Classes */
+.text-title {
+  font-size: var(--title);
+  font-weight: 600;
+  color: var(--text-black);
+}
+
+.text-body {
+  font-size: var(--body);
+  color: var(--text-black);
+}
+
+.text-meta {
+  font-size: var(--meta);
+  color: var(--text-gray);
+}
+
+.text-caption {
+  font-size: var(--caption);
+  color: var(--text-gray);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .feed-main {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .feed-container {
+    flex-direction: column;
+  }
+
+  .button-primary,
+  .button-secondary {
+    padding: 12px 20px;
+    font-size: var(--body);
+  }
+}
+
+/* Utility Classes */
+.text-primary {
+  color: var(--primary-blue);
+}
+
+.text-gray {
+  color: var(--text-gray);
+}
+
+.bg-light {
+  background: var(--light-gray);
+}
+
+.border-light {
+  border-color: var(--border-gray);
+}
+
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+/* Scrollbar Styling (minimal) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-gray);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-gray);
+}
