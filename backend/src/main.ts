@@ -10,6 +10,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'https://only-fans-mocha.vercel.app',
+      'https://www-onlyfans.vercel.app',
       process.env.FRONTEND_URL
     ].filter(Boolean),
     credentials: true,
