@@ -1,8 +1,11 @@
 # 🚀 Hybrid Deployment: Backend on Render + Frontend on Vercel
 
 ## Overview
-- **Backend**: Render (better for Node.js servers, free PostgreSQL)
+- **Database**: NeonDB or Render PostgreSQL (Serverless Postgres)
+- **Backend**: Render (better for Node.js servers)
 - **Frontend**: Vercel (optimized for Next.js, faster deployments)
+
+> **Using NeonDB?** See [NEONDB_DEPLOY.md](./NEONDB_DEPLOY.md) for NeonDB-specific guide.
 
 ## Step-by-Step Deployment
 
