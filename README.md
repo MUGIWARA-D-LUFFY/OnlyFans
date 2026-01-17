@@ -2,6 +2,19 @@
 
 A full-stack adult content subscription platform built with Next.js, NestJS, PostgreSQL, and Redis.
 
+## 🚀 Deployment
+
+**Recommended Setup**: 
+- **Backend**: Render (includes free PostgreSQL)
+- **Frontend**: Vercel (optimized for Next.js)
+
+📖 **[Complete Deployment Guide →](./HYBRID_DEPLOY.md)**
+
+Quick Deploy:
+- Backend on Render: See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+- Frontend on Vercel: See [QUICK_DEPLOY.md](./QUICK_DEPLOY.md)
+- Full Guide: See [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## Architecture
 
 - **Frontend**: Next.js 16 with TypeScript, Tailwind CSS, Zustand
