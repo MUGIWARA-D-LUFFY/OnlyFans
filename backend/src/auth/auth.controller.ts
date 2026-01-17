@@ -15,9 +15,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Public } from './decorators/public.decorator';
 
+import { UsersService } from '../users/users.service';
+
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) { }
 
   @Public()
   @Post('register')
@@ -49,13 +54,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@Request() req) {
-    return {
-      id: req.user.id,
-      email: req.user.email,
-      username: req.user.username,
-      role: req.user.role,
-      ageVerified: req.user.ageVerified,
-    };
+    // Determine which service method to use
+    // If we want the full profile with creator details, UsersService.getProfile is better
+    // because it includes relations that the JWT payload (req.user) might miss.
+    return this.usersService.getProfile(req.user.id);
   }
 }
 

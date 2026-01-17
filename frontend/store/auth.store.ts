@@ -74,9 +74,21 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   checkAuth: async () => {
     try {
+      // Check if we have tokens in cookies
+      const accessToken = Cookies.get('accessToken');
+      const refreshToken = Cookies.get('refreshToken');
+      
+      if (!accessToken && !refreshToken) {
+        set({ user: null, isAuthenticated: false, isLoading: false });
+        return;
+      }
+
       const user = await authService.getProfile();
       set({ user, isAuthenticated: true, isLoading: false });
     } catch (error) {
+      // Clear invalid tokens
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },

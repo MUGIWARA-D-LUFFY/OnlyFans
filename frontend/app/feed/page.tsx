@@ -118,6 +118,64 @@ const Icons = {
   )
 };
 
+// Sample demo posts to show when feed is empty
+const demoposts: any[] = [
+  {
+    id: 'demo-1',
+    title: "Storms can't stop adventure! @liztravels takes on the wild Stockholm archipelago in a packraft, chasing a secret island sauna and those unforgettable views you can only find in Sweden. 🇸🇪",
+    mediaUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800',
+    mediaType: 'image',
+    isPaid: false,
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    creator: {
+      id: 'demo-creator-1',
+      user: {
+        id: 'demo-user-1',
+        username: 'OnlyFans',
+        avatarUrl: '/logo.png'
+      },
+      verified: true
+    },
+    _count: { likes: 2847, comments: 142 }
+  },
+  {
+    id: 'demo-2',
+    title: "Behind the lens with @sophiabelle! Discover her creative process and exclusive content that keeps fans coming back for more. ✨",
+    mediaUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800',
+    mediaType: 'image',
+    isPaid: false,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    creator: {
+      id: 'demo-creator-2',
+      user: {
+        id: 'demo-user-2',
+        username: 'OnlyFans',
+        avatarUrl: '/logo.png'
+      },
+      verified: true
+    },
+    _count: { likes: 1923, comments: 89 }
+  },
+  {
+    id: 'demo-3',
+    title: "Fitness meets fashion! @emmarose shares her morning workout routine and the motivation that keeps her going strong. 💪",
+    mediaUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800',
+    mediaType: 'image',
+    isPaid: false,
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    creator: {
+      id: 'demo-creator-3',
+      user: {
+        id: 'demo-user-3',
+        username: 'OnlyFans',
+        avatarUrl: '/logo.png'
+      },
+      verified: true
+    },
+    _count: { likes: 3156, comments: 203 }
+  }
+];
+
 export default function FeedPage() {
   const { user, isLoading: authLoading } = useAuthGuard(true);
   const { posts, isLoading, fetchFeed } = usePostStore();
@@ -157,8 +215,11 @@ export default function FeedPage() {
     fetchFeed();
   };
 
+  // Use demo posts if no real posts are available
+  const displayPosts = posts.length > 0 ? posts : demoposts;
+
   // Filter posts based on search query
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = displayPosts.filter((post) => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -182,24 +243,30 @@ export default function FeedPage() {
   if (authLoading || isLoading) {
     return (
       <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-        <Navbar />
-        <main style={{ marginLeft: '260px', padding: '24px' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px' }}>
+          <Navbar />
+          <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
             <div style={{ textAlign: 'center', padding: '60px 20px' }}>
               <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-      <Navbar />
-      <main style={{ marginLeft: '260px', display: 'flex', justifyContent: 'center', gap: '24px', padding: '0 24px' }}>
+      <div style={{ 
+        maxWidth: '1280px', 
+        margin: '0 auto',
+        display: 'flex', 
+        padding: '0 24px',
+        gap: '24px'
+      }}>
+        <Navbar />
         {/* Main Content Area */}
-        <div style={{ flex: 1, maxWidth: '640px', minWidth: '0' }}>
+        <div style={{ flex: 1, maxWidth: '600px', minWidth: '0' }}>
           {/* HOME Header */}
           <div style={{
             display: 'flex',
@@ -347,7 +414,16 @@ export default function FeedPage() {
         </div>
 
         {/* Right Sidebar */}
-        <div style={{ width: '320px', flexShrink: 0, paddingTop: '20px' }}>
+        <div style={{ 
+          width: '320px', 
+          flexShrink: 0, 
+          paddingTop: '20px',
+          position: 'sticky',
+          top: 0,
+          height: 'fit-content',
+          maxHeight: '100vh',
+          overflowY: 'auto'
+        }}>
           {/* Search Box */}
           <div style={{
             background: 'white',
@@ -633,7 +709,7 @@ export default function FeedPage() {
             <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Terms of Service</a>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Create Post Modal */}
       <CreatePostModal
@@ -645,3 +721,4 @@ export default function FeedPage() {
     </div>
   );
 }
+

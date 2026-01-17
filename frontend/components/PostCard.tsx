@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../store/auth.store';
+import api from '../services/api';
 import { Post } from '../services/post.service';
 import * as postInteractions from '../services/post-interactions.service';
 import type { Comment } from '../services/post-interactions.service';
@@ -75,6 +78,13 @@ const Icons = {
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
       <line x1="1" y1="1" x2="23" y2="23"></line>
     </svg>
+  ),
+  image: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+      <polyline points="21 15 16 10 5 21"></polyline>
+    </svg>
   )
 };
 
@@ -127,6 +137,43 @@ const parseContent = (content: string) => {
   });
 };
 
+// Helper to convert Google Drive view links to direct embed links (for images)
+const getEmbedUrl = (url: string) => {
+  if (!url) return '';
+
+  // Handle Google Drive links
+  if (url.includes('drive.google.com')) {
+    // Extract ID from /file/d/ID/view or id=ID
+    const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      // Use thumbnail endpoint which is more reliable for images (bypasses virus scan warnings and some 403s)
+      // sz=s2000 requests a large version (up to 2000px)
+      return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=s2000`;
+    }
+  }
+
+  return url;
+};
+
+// Helper to get Google Drive video preview URL
+const getVideoPreviewUrl = (url: string) => {
+  if (!url) return '';
+
+  if (url.includes('drive.google.com')) {
+    const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+  }
+
+  return url;
+};
+
+// Check if URL is a Google Drive link
+const isGoogleDriveUrl = (url: string) => {
+  return url && url.includes('drive.google.com');
+};
+
 export default function PostCard({ post }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -136,6 +183,11 @@ export default function PostCard({ post }: PostCardProps) {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipAmount, setTipAmount] = useState('5');
   const [isTipping, setIsTipping] = useState(false);
+  const [isLikeLoading, setIsLikeLoading] = useState(false); // Added
+  const [isUnlockLoading, setIsUnlockLoading] = useState(false); // Added
+
+  const { user } = useAuthStore(); // Use store directly, not guard
+  const router = useRouter();
 
   // Comments state
   const [showComments, setShowComments] = useState(false);
@@ -190,6 +242,27 @@ export default function PostCard({ post }: PostCardProps) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleUnlock = async () => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+
+    if (!confirm(`Unlock this post for $${post.price}?`)) return;
+
+    setIsUnlockLoading(true);
+    try {
+      await api.post(`/payments/ppv/${post.id}`);
+      alert('Payment successful! Post unlocked.');
+      window.location.reload(); // Refresh to update visibility
+    } catch (error: any) {
+      console.error('Failed to unlock post:', error);
+      alert(error.response?.data?.message || 'Failed to unlock post');
+    } finally {
+      setIsUnlockLoading(false);
+    }
+  };
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -317,7 +390,7 @@ export default function PostCard({ post }: PostCardProps) {
         marginBottom: '16px',
         borderRadius: '0',
         borderTop: '1px solid #eaeaea',
-        padding: '16px 0'
+        padding: '16px'
       }}>
         {/* Post Header */}
         <div style={{
@@ -338,8 +411,9 @@ export default function PostCard({ post }: PostCardProps) {
             {/* Avatar */}
             {post.creator.user.avatarUrl ? (
               <img
-                src={post.creator.user.avatarUrl}
+                src={getEmbedUrl(post.creator.user.avatarUrl)}
                 alt={post.creator.user.username}
+                referrerPolicy="no-referrer"
                 style={{
                   width: '44px',
                   height: '44px',
@@ -501,17 +575,81 @@ export default function PostCard({ post }: PostCardProps) {
         <div style={{
           borderRadius: '12px',
           overflow: 'hidden',
-          marginBottom: '16px'
+          marginBottom: '16px',
+          background: !post.mediaUrl ? '#f8f9fa' : 'transparent',
+          minHeight: !post.mediaUrl ? '300px' : 'auto',
+          display: !post.mediaUrl ? 'flex' : 'block',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
-          {post.mediaType === 'image' ? (
+          {!post.mediaUrl ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', width: '100%' }}>
+              <div style={{
+                fontSize: '64px',
+                marginBottom: '16px',
+                color: '#e0e0e0',
+                display: 'flex',
+                justifyContent: 'center'
+              }}>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                color: '#8a96a3',
+                marginBottom: '24px',
+                fontSize: '14px'
+              }}>
+                {Icons.image()} 1
+              </div>
+
+              <button
+                onClick={handleUnlock}
+                disabled={isUnlockLoading}
+                style={{
+                  background: isUnlockLoading ? '#9ca3af' : '#00aeef',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '25px',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  cursor: isUnlockLoading ? 'wait' : 'pointer',
+                  width: '100%',
+                  maxWidth: '300px',
+                  textTransform: 'uppercase'
+                }}>
+                {isUnlockLoading ? 'PROCESSING...' : post.isPaid ? `UNLOCK POST $${post.price?.toFixed(2) || '0.00'}` : "SUBSCRIBE TO SEE USER'S POSTS"}
+              </button>
+            </div>
+          ) : post.mediaType === 'image' ? (
             <img
-              src={post.mediaUrl}
+              src={getEmbedUrl(post.mediaUrl)}
               alt={post.title || 'Post'}
+              referrerPolicy="no-referrer"
               style={{
                 width: '100%',
                 display: 'block',
                 maxHeight: '500px',
                 objectFit: 'cover'
+              }}
+            />
+          ) : isGoogleDriveUrl(post.mediaUrl) ? (
+            <iframe
+              src={getVideoPreviewUrl(post.mediaUrl)}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              style={{
+                width: '100%',
+                height: '400px',
+                border: 'none',
+                display: 'block'
               }}
             />
           ) : (

@@ -206,7 +206,7 @@ export default function CollectionsPage() {
         return (
             <div style={{ minHeight: '100vh', background: '#fafafa' }}>
                 <Navbar />
-                <main style={{ marginLeft: '260px', padding: '24px' }}>
+                <main style={{ marginLeft: '288px', padding: '24px' }}>
                     <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                         <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
                     </div>
@@ -219,8 +219,9 @@ export default function CollectionsPage() {
 
     return (
         <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-            <Navbar />
-            <main style={{ marginLeft: '260px', display: 'flex', padding: '0' }}>
+            <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+                <Navbar />
+                <main style={{ flex: 1, display: 'flex', padding: '0' }}>
                 {/* Left Panel - Lists */}
                 <div style={{
                     width: '320px',
@@ -834,6 +835,8 @@ export default function CollectionsPage() {
                     </div>
                 </div>
             </main>
+            </div>
         </div>
     );
 }
+

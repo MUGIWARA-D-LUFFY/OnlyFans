@@ -8,6 +8,7 @@ export interface Post {
   mediaType: string;
   isPaid: boolean;
   price?: number;
+  visibility: 'PUBLIC' | 'SUBSCRIBERS' | 'PAID';
   createdAt: string;
   creator: {
     id: string;
@@ -25,6 +26,7 @@ export interface CreatePostData {
   mediaType: 'image' | 'video';
   isPaid?: boolean;
   price?: number;
+  visibility?: 'PUBLIC' | 'SUBSCRIBERS' | 'PAID';
 }
 
 export const postService = {

@@ -20,5 +20,10 @@ export class CreatePostDto {
   @Min(0)
   @IsOptional()
   price?: number;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(['PUBLIC', 'SUBSCRIBERS', 'PAID'])
+  visibility?: 'PUBLIC' | 'SUBSCRIBERS' | 'PAID';
 }
 

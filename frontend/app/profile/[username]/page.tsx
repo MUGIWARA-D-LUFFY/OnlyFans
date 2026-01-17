@@ -79,12 +79,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
-      <Navbar />
-      
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0', marginLeft: '240px' }}>
+    <div style={{ minHeight: '100vh', background: '#fafafa' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+        <Navbar />
+        <main style={{ 
+          flex: 1,
+          display: 'flex',
+          padding: '0'
+        }}>
+        <div style={{ 
+          flex: 1, 
+          width: '100%',
+          display: 'grid',
+          gridTemplateColumns: '1fr 380px',
+          gap: '0'
+        }}>
+          {/* Main Content Column */}
+          <div style={{ minWidth: 0 }}>
         {/* Cover Image with Profile Info Overlay */}
-        <div style={{ position: 'relative', background: 'white' }}>
+        <div style={{ position: 'relative', background: 'white', borderRight: '1px solid #eaeaea' }}>
           {/* Cover Image */}
           <div style={{ 
             width: '100%', 
@@ -242,55 +255,82 @@ export default function ProfilePage() {
 
         {/* Main Content Grid */}
         <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: '1fr 380px',
-          gap: '20px',
-          padding: '20px',
-          alignItems: 'start'
+          padding: '20px 30px'
         }}>
-          {/* Posts Column */}
+          {/* Posts Section */}
           <div>
-            <h2 style={{ 
-              fontSize: '18px',
-              fontWeight: 700,
-              marginBottom: '20px',
-              color: '#262626'
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingBottom: '16px',
+              borderBottom: '1px solid #eaeaea',
+              marginBottom: '20px'
             }}>
-              Posts
-            </h2>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button style={{
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: '#1a1a2e',
+                  background: 'none',
+                  border: 'none',
+                  padding: '8px 0',
+                  cursor: 'pointer',
+                  borderBottom: '2px solid #00aeef'
+                }}>
+                  {profile.creator?._count?.posts || 0} POSTS
+                </button>
+                <button style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#8a96a3',
+                  background: 'none',
+                  border: 'none',
+                  padding: '8px 0',
+                  cursor: 'pointer'
+                }}>
+                  940 MEDIA
+                </button>
+              </div>
+            </div>
             {posts.length === 0 ? (
               <div style={{ 
                 background: 'white',
                 borderRadius: '8px',
                 padding: '40px',
                 textAlign: 'center',
-                color: '#8e8e8e'
+                color: '#8a96a3'
               }}>
                 No posts available.
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
               </div>
             )}
           </div>
+        </div>
+        </div>
 
-          {/* Subscription Sidebar */}
+          {/* Subscription Sidebar - Right Column */}
           {profile.creator && (
-            <div style={{ position: 'sticky', top: '20px' }}>
+            <div style={{ 
+              background: 'white',
+              borderLeft: '1px solid #eaeaea',
+              padding: '20px 24px',
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
+              overflowY: 'auto'
+            }}>
               {/* Subscription Card */}
-              <div style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '24px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-              }}>
+              <div>
                 <h3 style={{
-                  fontSize: '16px',
+                  fontSize: '13px',
                   fontWeight: 700,
-                  color: '#8e8e8e',
+                  color: '#8a96a3',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   marginBottom: '16px'
@@ -300,63 +340,65 @@ export default function ProfilePage() {
 
                 {/* Limited Offer Banner */}
                 <div style={{
-                  background: '#fff4e6',
+                  background: '#f5f5f5',
                   borderRadius: '8px',
                   padding: '16px',
-                  marginBottom: '20px'
+                  marginBottom: '16px'
                 }}>
                   <h4 style={{
-                    fontSize: '16px',
+                    fontSize: '15px',
                     fontWeight: 700,
-                    marginBottom: '12px',
-                    color: '#262626'
+                    marginBottom: '8px',
+                    color: '#1a1a2e'
                   }}>
-                    Limited offer - 75% off for 31 days!
+                    Limited offer - 20% off for 31 days!
                   </h4>
-                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#8a96a3',
+                    margin: '0 0 12px 0'
+                  }}>
+                    Offer ends Jan 21
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                     {profile.avatarUrl ? (
                       <img 
                         src={profile.avatarUrl} 
                         alt={username}
                         style={{ 
-                          width: '40px', 
-                          height: '40px', 
+                          width: '36px', 
+                          height: '36px', 
                           borderRadius: '50%',
-                          objectFit: 'cover'
+                          objectFit: 'cover',
+                          flexShrink: 0
                         }}
                       />
                     ) : (
                       <div style={{ 
-                        width: '40px', 
-                        height: '40px', 
+                        width: '36px', 
+                        height: '36px', 
                         borderRadius: '50%', 
-                        background: 'var(--primary)',
+                        background: '#00aeef',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
-                        fontSize: '18px',
-                        fontWeight: 'bold'
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        flexShrink: 0
                       }}>
                         {username?.[0]?.toUpperCase() || 'U'}
                       </div>
                     )}
-                    <div>
-                      <p style={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        margin: 0,
-                        marginBottom: '4px'
-                      }}>
-                        75% off for a very limited time ⚡ ⚡
-                      </p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{
                         fontSize: '13px',
-                        color: '#666',
+                        fontWeight: 500,
                         margin: 0,
+                        color: '#1a1a2e',
                         lineHeight: '1.4'
                       }}>
-                        A magical sight of MASSIVE BOOBS on the front page...and intriguing thoughts provoking conversation awaits...if you can handle it! Welcome to my world 😘
+                        Eight minute oral 😈 $40 if you missed - YOU TIP $40 (Some of you need to learn to read 🤷)
                       </p>
                     </div>
                   </div>
@@ -366,7 +408,7 @@ export default function ProfilePage() {
                 {isSubscribed ? (
                   <button style={{
                     width: '100%',
-                    padding: '14px',
+                    padding: '12px',
                     borderRadius: '25px',
                     border: 'none',
                     background: '#e0e0e0',
@@ -374,7 +416,7 @@ export default function ProfilePage() {
                     fontSize: '15px',
                     fontWeight: 700,
                     cursor: 'not-allowed',
-                    marginBottom: '12px'
+                    marginBottom: '8px'
                   }}>
                     Subscribed ✓
                   </button>
@@ -383,90 +425,129 @@ export default function ProfilePage() {
                     onClick={() => {/* Handle subscribe */}}
                     style={{
                       width: '100%',
-                      padding: '14px',
+                      padding: '12px',
                       borderRadius: '25px',
                       border: 'none',
-                      background: '#00aff0',
+                      background: '#00aeef',
                       color: 'white',
                       fontSize: '15px',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      marginBottom: '12px',
-                      transition: 'background 0.2s'
+                      marginBottom: '8px',
+                      transition: 'background 0.2s',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingLeft: '20px',
+                      paddingRight: '20px'
                     }}
                     onMouseOver={(e) => e.currentTarget.style.background = '#0099d6'}
-                    onMouseOut={(e) => e.currentTarget.style.background = '#00aff0'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#00aeef'}
                   >
-                    SUBSCRIBE ${(profile.creator.subscriptionFee * 0.25).toFixed(2)} for 31 days
+                    <span>SUBSCRIBE</span>
+                    <span>${(profile.creator.subscriptionFee * 0.8).toFixed(2)} for 31 days</span>
                   </button>
                 )}
 
                 <p style={{
-                  fontSize: '13px',
-                  color: '#8e8e8e',
+                  fontSize: '12px',
+                  color: '#8a96a3',
                   textAlign: 'center',
                   margin: 0
                 }}>
-                  Regular price ${profile.creator.subscriptionFee.toFixed(2)}/month
+                  Regular price ${profile.creator.subscriptionFee.toFixed(2)} /month
                 </p>
 
                 {/* Subscription Bundles */}
-                <details style={{ marginTop: '24px' }}>
+                <details style={{ marginTop: '20px' }}>
                   <summary style={{
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: 700,
-                    color: '#8e8e8e',
+                    color: '#8a96a3',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                     cursor: 'pointer',
                     padding: '12px 0',
-                    borderTop: '1px solid #e0e0e0'
+                    borderTop: '1px solid #eaeaea',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}>
-                    SUBSCRIPTION BUNDLES
+                    <span>SUBSCRIPTION BUNDLES</span>
+                    <span style={{ fontSize: '18px' }}>›</span>
                   </summary>
-                  <div style={{ paddingTop: '12px' }}>
+                  <div style={{ paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button style={{
                       width: '100%',
-                      padding: '14px',
+                      padding: '12px 16px',
                       borderRadius: '25px',
                       border: 'none',
-                      background: '#00aff0',
+                      background: '#00aeef',
                       color: 'white',
                       fontSize: '14px',
                       fontWeight: 600,
                       cursor: 'pointer',
-                      marginBottom: '8px',
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span>3 MONTHS (5% off)</span>
-                      <span>${(profile.creator.subscriptionFee * 3 * 0.95).toFixed(2)} total</span>
+                      alignItems: 'center',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#0099d6'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#00aeef'}
+                    >
+                      <span>3 MONTHS (10% off)</span>
+                      <span>${(profile.creator.subscriptionFee * 3 * 0.90).toFixed(2)} total</span>
                     </button>
                     <button style={{
                       width: '100%',
-                      padding: '14px',
+                      padding: '12px 16px',
                       borderRadius: '25px',
                       border: 'none',
-                      background: '#00aff0',
+                      background: '#00aeef',
                       color: 'white',
                       fontSize: '14px',
                       fontWeight: 600,
                       cursor: 'pointer',
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span>6 MONTHS (10% off)</span>
-                      <span>${(profile.creator.subscriptionFee * 6 * 0.90).toFixed(2)} total</span>
+                      alignItems: 'center',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#0099d6'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#00aeef'}
+                    >
+                      <span>6 MONTHS (15% off)</span>
+                      <span>${(profile.creator.subscriptionFee * 6 * 0.85).toFixed(2)} total</span>
                     </button>
                   </div>
                 </details>
+
+                {/* Footer Links */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  alignItems: 'center',
+                  fontSize: '11px',
+                  color: '#8a96a3',
+                  marginTop: '24px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid #eaeaea'
+                }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Privacy</a>
+                    <span>·</span>
+                    <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Cookie Notice</a>
+                    <span>·</span>
+                    <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Terms of Service</a>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

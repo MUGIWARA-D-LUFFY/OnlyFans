@@ -104,6 +104,7 @@ model Transaction {
   id        String          @id @default(uuid())
   userId    String
   creatorId String?
+  postId    String?         // For PPV purchases
   amount    Float
   type      TransactionType
   status    String          @default("pending") // 'pending' | 'completed' | 'failed'
@@ -113,6 +114,7 @@ model Transaction {
 
   @@index([userId])
   @@index([creatorId])
+  @@index([postId])
   @@index([createdAt])
 }
 

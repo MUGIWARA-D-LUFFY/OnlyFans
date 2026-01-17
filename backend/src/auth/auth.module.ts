@@ -7,8 +7,11 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 
+import { UsersModule } from '../users/users.module';
+
 @Module({
   imports: [
+    UsersModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -25,6 +28,6 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
 
 

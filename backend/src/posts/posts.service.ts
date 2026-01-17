@@ -5,6 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
@@ -13,7 +14,7 @@ export class PostsService {
   constructor(
     private prisma: PrismaService,
     private subscriptionsService: SubscriptionsService,
-  ) {}
+  ) { }
 
   async createPost(creatorId: string, userId: string, createPostDto: CreatePostDto) {
     // Verify user is the creator
@@ -29,6 +30,13 @@ export class PostsService {
       throw new ForbiddenException('You can only create posts for your own creator profile');
     }
 
+    // Determine default visibility based on isPaid
+    let visibility: any = createPostDto.visibility;
+    if (!visibility) {
+      if (createPostDto.isPaid) visibility = 'PAID';
+      else visibility = 'PUBLIC';
+    }
+
     const post = await this.prisma.post.create({
       data: {
         creatorId,
@@ -37,6 +45,7 @@ export class PostsService {
         mediaType: createPostDto.mediaType,
         isPaid: createPostDto.isPaid || false,
         price: createPostDto.price,
+        visibility,
       },
       include: {
         creator: {
@@ -54,6 +63,33 @@ export class PostsService {
     });
 
     return post;
+  }
+
+  async updatePost(postId: string, userId: string, updatePostDto: UpdatePostDto) {
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { creator: true },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.creator.userId !== userId) {
+      throw new ForbiddenException('You can only update your own posts');
+    }
+
+    const updatedPost = await this.prisma.post.update({
+      where: { id: postId },
+      data: {
+        title: updatePostDto.title,
+        isPaid: updatePostDto.isPaid,
+        price: updatePostDto.price,
+        visibility: updatePostDto.visibility as any,
+      },
+    });
+
+    return updatedPost;
   }
 
   async getFeed(userId: string, page: number = 1, limit: number = 20) {
@@ -175,19 +211,55 @@ export class PostsService {
       throw new NotFoundException('Creator not found');
     }
 
-    const skip = (page - 1) * limit;
-    const isSubscribed = userId
-      ? await this.subscriptionsService.isSubscribed(userId, creatorId)
-      : false;
+    // Check if user is subscribed
+    let isSubscribed = false;
+    let purchasedPostIds = new Set<string>();
+
+    if (userId) {
+      // Check subscription
+      const subscription = await this.prisma.subscription.findUnique({
+        where: {
+          userId_creatorId: {
+            userId,
+            creatorId,
+          },
+        },
+      });
+
+      if (subscription && subscription.expiresAt > new Date()) {
+        isSubscribed = true;
+      }
+
+      // Check PPV purchases (use metadata since postId column may not be recognized by Prisma yet)
+      const purchases = await this.prisma.transaction.findMany({
+        where: {
+          userId,
+          type: 'PPV',
+          status: 'completed',
+          creatorId,
+        },
+        select: { metadata: true }
+      });
+      purchases.forEach(p => {
+        try {
+          if (p.metadata) {
+            const meta = JSON.parse(p.metadata);
+            if (meta.postId) purchasedPostIds.add(meta.postId);
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      });
+    }
+
+    // Check if the requesting user is the creator themselves
+    const isOwner = userId === creator.userId;
 
     const where: any = {
       creatorId,
     };
 
-    // If not subscribed, only show free posts
-    if (!isSubscribed) {
-      where.isPaid = false;
-    }
+    const skip = (page - 1) * limit;
 
     const [posts, total] = await Promise.all([
       this.prisma.post.findMany({
@@ -214,8 +286,35 @@ export class PostsService {
       this.prisma.post.count({ where }),
     ]);
 
+    // Sanitize posts
+    const sanitizedPosts = posts.map(post => {
+      // 1. Owner sees everything
+      if (isOwner) return post;
+
+      // 2. PPV (Paid) Posts: Must be purchased
+      if (post.isPaid) {
+        if (purchasedPostIds.has(post.id)) {
+          return post; // Unlocked
+        } else {
+          return { ...post, mediaUrl: null }; // Locked
+        }
+      }
+
+      // 3. Subscribers Only Posts
+      if (post.visibility === 'SUBSCRIBERS') {
+        if (isSubscribed) {
+          return post; // Unlocked
+        } else {
+          return { ...post, mediaUrl: null }; // Locked
+        }
+      }
+
+      // 4. Public Posts -> Always visible
+      return post;
+    });
+
     return {
-      posts,
+      posts: sanitizedPosts,
       total,
       page,
       limit,

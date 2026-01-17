@@ -8,11 +8,13 @@ import {
   Query,
   Request,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { LikesService } from './likes.service';
 import { CommentsService } from './comments.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from '../auth/decorators/public.decorator';
 
@@ -23,6 +25,16 @@ export class PostsController {
     private readonly likesService: LikesService,
     private readonly commentsService: CommentsService,
   ) { }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updatePost(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postsService.updatePost(id, req.user.id, updatePostDto);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('creator/:creatorId')

@@ -136,20 +136,23 @@ export default function MessagesPage() {
   if (authLoading || isLoading) {
     return (
       <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-        <Navbar />
-        <main style={{ marginLeft: '260px', padding: '24px' }}>
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+          <Navbar />
+          <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
+            </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-      <Navbar />
-      <main style={{ marginLeft: '260px', display: 'flex', padding: '0', height: '100vh' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+        <Navbar />
+        <main style={{ flex: 1, display: 'flex', padding: '0', height: '100vh' }}>
         {/* Left Panel - Conversations List */}
         <div style={{
           width: '360px',
@@ -546,6 +549,8 @@ export default function MessagesPage() {
         onClose={() => setShowNewConversationModal(false)}
         onConversationStarted={handleNewConversation}
       />
+      </div>
     </div>
   );
 }
+

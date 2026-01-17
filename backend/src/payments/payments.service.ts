@@ -14,7 +14,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private subscriptionsService: SubscriptionsService,
-  ) {}
+  ) { }
 
   async processSubscriptionPayment(userId: string, creatorId: string) {
     const creator = await this.prisma.creator.findUnique({
@@ -125,15 +125,8 @@ export class PaymentsService {
       throw new BadRequestException('This post is not a paid post');
     }
 
-    // Check if user already has access (subscribed)
-    const isSubscribed = await this.subscriptionsService.isSubscribed(
-      userId,
-      post.creatorId,
-    );
-
-    if (isSubscribed) {
-      throw new BadRequestException('You already have access through subscription');
-    }
+    // PPV posts must be purchased separately, even by subscribers
+    // No subscription check here - that's the whole point of PPV
 
     // Check if user already purchased this PPV
     const existingTransaction = await this.prisma.transaction.findFirst({
@@ -142,7 +135,8 @@ export class PaymentsService {
         creatorId: post.creatorId,
         type: TransactionType.PPV,
         status: 'completed',
-        metadata: JSON.stringify({ postId }),
+        // @ts-ignore
+        postId,
       },
     });
 
@@ -157,23 +151,25 @@ export class PaymentsService {
         amount: post.price,
         type: TransactionType.PPV,
         status: 'pending',
+        // @ts-ignore
+        postId,
         metadata: JSON.stringify({ postId }),
       },
     });
 
     // Simulate payment processing
-    setTimeout(async () => {
-      await this.prisma.transaction.update({
-        where: { id: transaction.id },
-        data: { status: 'completed' },
-      });
-    }, 1000);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    await this.prisma.transaction.update({
+      where: { id: transaction.id },
+      data: { status: 'completed' },
+    });
 
     return {
       transactionId: transaction.id,
       amount: transaction.amount,
-      status: transaction.status,
-      message: 'PPV payment processing. Access will be granted upon confirmation.',
+      status: 'completed',
+      message: 'PPV payment successful. Access granted.',
     };
   }
 

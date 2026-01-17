@@ -132,7 +132,7 @@ export default function Navbar() {
 
   const NavLink = ({ href, icon, children }: { href: string; icon: (color: string) => React.ReactElement; children: React.ReactNode }) => {
     const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
-    const activeColor = '#00aeef';
+    const activeColor = '#1a1a2e';
     const defaultColor = '#8a96a3';
 
     return (
@@ -141,22 +141,20 @@ export default function Navbar() {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '20px',
-          padding: '16px 0',
+          gap: '16px',
+          padding: '14px 12px',
           textDecoration: 'none',
-          fontSize: '18px',
+          fontSize: '15px',
           fontWeight: isActive ? 600 : 400,
-          color: isActive ? activeColor : '#1a1a2e',
-          background: isActive ? 'rgba(0, 174, 239, 0.08)' : 'transparent',
-          borderRadius: '12px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
+          color: isActive ? activeColor : '#8a96a3',
+          background: 'transparent',
+          borderRadius: '8px',
           transition: 'all 0.2s ease',
           cursor: 'pointer'
         }}
         onMouseEnter={(e) => {
           if (!isActive) {
-            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.03)';
+            e.currentTarget.style.background = '#f5f5f5';
           }
         }}
         onMouseLeave={(e) => {
@@ -270,57 +268,40 @@ export default function Navbar() {
   return (
     <>
       <nav style={{
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '260px',
+        width: '240px',
         background: 'white',
         borderRight: '1px solid #eaeaea',
         display: 'flex',
         flexDirection: 'column',
-        padding: '24px 16px',
-        zIndex: 1000
+        padding: '20px 16px',
+        height: '100vh',
+        position: 'sticky',
+        top: 0
       }}>
         {/* Logo at Top */}
         <Link href="/feed" style={{
           display: 'flex',
           alignItems: 'center',
           textDecoration: 'none',
-          marginBottom: '20px',
-          marginLeft: '8px'
+          marginBottom: '32px',
+          paddingLeft: '12px'
         }}>
-          <img src="/logo.png" alt="Logo" style={{ height: '36px', width: 'auto' }} />
-        </Link>
-
-        {/* Profile Avatar */}
-        <div
-          onClick={() => setShowProfileMenu(true)}
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: '#ff4444',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
+          <div style={{
+            color: '#00aeef',
             fontWeight: 'bold',
-            fontSize: '16px',
-            cursor: 'pointer',
-            marginBottom: '24px',
-            marginLeft: '8px'
-          }}
-        >
-          {user?.username?.[0]?.toUpperCase() || 'U'}
-        </div>
+            fontSize: '18px',
+            letterSpacing: '1px'
+          }}>
+            MS
+          </div>
+        </Link>
 
         {/* Navigation Links */}
         <div style={{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '2px'
+          gap: '0'
         }}>
           <NavLink href="/feed" icon={Icons.home}>Home</NavLink>
           <NavLink href="/notifications" icon={Icons.notifications}>Notifications</NavLink>
@@ -336,18 +317,18 @@ export default function Navbar() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              padding: '16px',
+              gap: '16px',
+              padding: '14px 12px',
               textDecoration: 'none',
-              fontSize: '18px',
+              fontSize: '15px',
               fontWeight: 400,
-              color: '#1a1a2e',
+              color: '#8a96a3',
               background: 'transparent',
-              borderRadius: '12px',
+              borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 0, 0, 0.03)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px' }}>
@@ -358,35 +339,32 @@ export default function Navbar() {
         </div>
 
         {/* New Post Button */}
-        <div style={{ padding: '0 4px', marginTop: 'auto' }}>
+        <div style={{ padding: '0 8px', marginTop: 'auto' }}>
           <Link
             href={user?.role === 'CREATOR' ? '/creator/upload' : '/become-creator'}
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px',
+              gap: '8px',
               width: '100%',
-              padding: '14px 20px',
+              padding: '12px 16px',
               borderRadius: '50px',
-              background: 'linear-gradient(135deg, #00aeef 0%, #00c6ff 100%)',
+              background: '#00aeef',
               color: 'white',
               textDecoration: 'none',
               fontSize: '15px',
               fontWeight: 700,
               textTransform: 'uppercase',
-              letterSpacing: '1px',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0, 174, 239, 0.35)',
+              letterSpacing: '0.5px',
+              transition: 'all 0.2s ease',
               border: 'none'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 174, 239, 0.45)';
+              e.currentTarget.style.background = '#0099d6';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 174, 239, 0.35)';
+              e.currentTarget.style.background = '#00aeef';
             }}
           >
             {Icons.plus()}

@@ -107,20 +107,23 @@ export default function MyProfilePage() {
     if (authLoading) {
         return (
             <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-                <Navbar />
-                <main style={{ marginLeft: '260px', padding: '24px' }}>
-                    <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                        <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
+                <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+                    <Navbar />
+                    <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
+                        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                            <p style={{ color: '#8a96a3', fontSize: '16px' }}>Loading...</p>
+                        </div>
                     </div>
-                </main>
+                </div>
             </div>
         );
     }
 
     return (
         <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-            <Navbar />
-            <main style={{ marginLeft: '260px', display: 'flex', justifyContent: 'center', gap: '24px', padding: '0 24px' }}>
+            <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+                <Navbar />
+                <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
                 {/* Main Content */}
                 <div style={{ flex: 1, maxWidth: '640px', minWidth: '0' }}>
                     {/* Header */}
@@ -563,7 +566,9 @@ export default function MyProfilePage() {
                         <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Terms of Service</a>
                     </div>
                 </div>
-            </main>
+            </div>
+            </div>
         </div>
     );
 }
+

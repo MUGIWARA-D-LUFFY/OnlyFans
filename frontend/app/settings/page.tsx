@@ -176,8 +176,9 @@ export default function SettingsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-      <Navbar />
-      <main style={{ marginLeft: '260px', display: 'flex', padding: '0' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
+        <Navbar />
+        <main style={{ flex: 1, display: 'flex', padding: '0' }}>
         {/* Left Sidebar - Navigation */}
         <div style={{
           width: '280px',
@@ -717,3 +718,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
