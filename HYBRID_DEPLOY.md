@@ -27,7 +27,7 @@
    - **Environment**: Node
    - **Build Command**: 
      ```bash
-     npm install && npx nest build && npx prisma generate
+     npm install && npm run build
      ```
    - **Start Command**: 
      ```bash

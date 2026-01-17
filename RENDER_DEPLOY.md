@@ -25,7 +25,7 @@
    - **Region**: Same as database
    - **Root Directory**: `backend`
    - **Environment**: Node
-   - **Build Command**: `npm install && npx nest build && npx prisma generate`
+   - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm run start:prod`
    - **Plan**: Free
 
@@ -51,7 +51,7 @@ Once backend is deployed:
 
 Or use Render's Build Command:
 ```bash
-npm install && npx nest build && npx prisma generate && npx prisma migrate deploy
+npm install && npm run build && npx prisma migrate deploy
 ```
 
 ### Step 4: Deploy Frontend

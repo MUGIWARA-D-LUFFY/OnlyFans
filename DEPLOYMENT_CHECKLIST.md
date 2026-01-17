@@ -11,7 +11,7 @@
 - [ ] Create Web Service on Render
 - [ ] Connected GitHub repository
 - [ ] Set Root Directory: `backend`
-- [ ] Build Command: `npm install && npx nest build && npx prisma generate`
+- [ ] Build Command: `npm install && npm run build`
 - [ ] Start Command: `npm run start:prod`
 - [ ] Environment variables added:
   - [ ] DATABASE_URL
