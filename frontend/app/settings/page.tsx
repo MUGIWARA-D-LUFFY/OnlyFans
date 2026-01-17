@@ -714,7 +714,8 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
