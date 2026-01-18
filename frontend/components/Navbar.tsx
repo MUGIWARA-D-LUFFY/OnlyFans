@@ -6,6 +6,18 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '../store/auth.store';
 
+// Helper to convert Google Drive URLs to embeddable format
+const getEmbedUrl = (url: string | null | undefined): string => {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=s200`;
+    }
+  }
+  return url;
+};
+
 // SVG Icons matching the reference design
 const Icons = {
   home: (color: string) => (
@@ -130,7 +142,7 @@ export default function Navbar() {
     router.push('/');
   };
 
-  const NavLink = ({ href, icon, children }: { href: string; icon: (color: string) => React.ReactElement; children: React.ReactNode }) => {
+  const NavLink = ({ href, icon, children }: { href: string; icon: (color: string) => React.ReactNode; children: React.ReactNode }) => {
     const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
     const activeColor = '#1a1a2e';
     const defaultColor = '#8a96a3';
@@ -173,7 +185,7 @@ export default function Navbar() {
 
   // Menu item component for dropdown
   const MenuItem = ({ icon, children, href, onClick, subtitle }: {
-    icon: (color: string) => React.ReactElement;
+    icon: (color: string) => React.ReactNode;
     children: React.ReactNode;
     href?: string;
     onClick?: () => void;
@@ -278,7 +290,7 @@ export default function Navbar() {
         position: 'sticky',
         top: 0
       }}>
-        {/* Logo at Top */}
+        {/* Logo at Top - Shows Avatar or MS */}
         <Link href="/feed" style={{
           display: 'flex',
           alignItems: 'center',
@@ -286,14 +298,29 @@ export default function Navbar() {
           marginBottom: '32px',
           paddingLeft: '12px'
         }}>
-          <div style={{
-            color: '#00aeef',
-            fontWeight: 'bold',
-            fontSize: '18px',
-            letterSpacing: '1px'
-          }}>
-            MS
-          </div>
+          {user?.avatarUrl ? (
+            <img
+              src={getEmbedUrl(user.avatarUrl)}
+              alt="Brand"
+              referrerPolicy="no-referrer"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #00aeef'
+              }}
+            />
+          ) : (
+            <div style={{
+              color: '#00aeef',
+              fontWeight: 'bold',
+              fontSize: '18px',
+              letterSpacing: '1px'
+            }}>
+              MS
+            </div>
+          )}
         </Link>
 
         {/* Navigation Links */}
@@ -309,7 +336,34 @@ export default function Navbar() {
           <NavLink href="/collections" icon={Icons.collections}>Collections</NavLink>
           <NavLink href="/subscriptions" icon={Icons.subscriptions}>Subscriptions</NavLink>
           <NavLink href="/add-card" icon={Icons.addCard}>Add card</NavLink>
-          <NavLink href="/my-profile" icon={Icons.profile}>My profile</NavLink>
+
+
+
+          {/* My Profile - show Avatar if available */}
+          <NavLink
+            href="/my-profile"
+            icon={(color) =>
+              user?.avatarUrl ? (
+                <img
+                  src={getEmbedUrl(user.avatarUrl)}
+                  alt="Profile"
+                  referrerPolicy="no-referrer"
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: pathname === '/my-profile' ? '2px solid #1a1a2e' : 'none'
+                  }}
+                />
+              ) : (
+                Icons.profile(color)
+              )
+            }
+          >
+            My profile
+          </NavLink>
+
 
           {/* More - opens same menu */}
           <div
@@ -481,8 +535,13 @@ export default function Navbar() {
             {/* Menu Items - Group 2 */}
             <div style={{ borderBottom: '1px solid #eaeaea' }}>
               <MenuItem icon={Icons.addCard} href="/add-card" subtitle="(to subscribe)">Your cards</MenuItem>
-              <MenuItem icon={Icons.creator} href="/become-creator" subtitle="(to earn)">Become a creator</MenuItem>
+              {user?.role === 'CREATOR' ? (
+                <MenuItem icon={Icons.creator} href="/creator/dashboard">Dashboard</MenuItem>
+              ) : (
+                <MenuItem icon={Icons.creator} href="/become-creator" subtitle="(to earn)">Become a creator</MenuItem>
+              )}
             </div>
+
 
             {/* Menu Items - Group 3 */}
             <div>

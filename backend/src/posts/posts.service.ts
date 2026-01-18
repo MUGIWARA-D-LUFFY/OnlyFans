@@ -286,35 +286,50 @@ export class PostsService {
       this.prisma.post.count({ where }),
     ]);
 
-    // Sanitize posts
-    const sanitizedPosts = posts.map(post => {
-      // 1. Owner sees everything
-      if (isOwner) return post;
+    // Annotate posts with access info
+    const annotatedPosts = posts.map(post => {
+      // 1. Owner sees everything unlocked
+      if (isOwner) {
+        return {
+          ...post,
+          isLocked: false,
+          accessLevel: post.isPaid ? 'PPV' : (post.visibility === 'SUBSCRIBERS' ? 'SUBSCRIBER' : 'FREE'),
+          hasPurchased: true
+        };
+      }
 
       // 2. PPV (Paid) Posts: Must be purchased
       if (post.isPaid) {
-        if (purchasedPostIds.has(post.id)) {
-          return post; // Unlocked
-        } else {
-          return { ...post, mediaUrl: null }; // Locked
-        }
+        const hasPurchased = purchasedPostIds.has(post.id);
+        return {
+          ...post,
+          isLocked: !hasPurchased,
+          accessLevel: 'PPV',
+          hasPurchased
+        };
       }
 
       // 3. Subscribers Only Posts
       if (post.visibility === 'SUBSCRIBERS') {
-        if (isSubscribed) {
-          return post; // Unlocked
-        } else {
-          return { ...post, mediaUrl: null }; // Locked
-        }
+        return {
+          ...post,
+          isLocked: !isSubscribed,
+          accessLevel: 'SUBSCRIBER',
+          hasPurchased: false
+        };
       }
 
       // 4. Public Posts -> Always visible
-      return post;
+      return {
+        ...post,
+        isLocked: false,
+        accessLevel: 'FREE',
+        hasPurchased: false
+      };
     });
 
     return {
-      posts: sanitizedPosts,
+      posts: annotatedPosts,
       total,
       page,
       limit,

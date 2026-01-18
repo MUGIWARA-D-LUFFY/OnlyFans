@@ -8,6 +8,7 @@ interface User {
   username?: string;
   role: string;
   ageVerified: boolean;
+  avatarUrl?: string;
   creator?: {
     id: string;
     subscriptionFee: number;
@@ -77,7 +78,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Check if we have tokens in cookies
       const accessToken = Cookies.get('accessToken');
       const refreshToken = Cookies.get('refreshToken');
-      
+
       if (!accessToken && !refreshToken) {
         set({ user: null, isAuthenticated: false, isLoading: false });
         return;

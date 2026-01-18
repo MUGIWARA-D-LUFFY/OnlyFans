@@ -7,7 +7,6 @@ import { useAuthGuard } from '../../utils/authGuard';
 import { useUserStore } from '../../store/user.store';
 import api from '../../services/api';
 import Link from 'next/link';
-import { getEmbedUrl } from '../../utils/imageUtils';
 
 // Icons
 const Icons = {
@@ -59,6 +58,24 @@ const Icons = {
     )
 };
 
+// Helper to convert Google Drive view links to direct embed links
+const getEmbedUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+
+    // Handle Google Drive links
+    if (url.includes('drive.google.com')) {
+        // Extract ID from /file/d/ID/view or id=ID
+        const idMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+        if (idMatch && idMatch[1]) {
+            // Use thumbnail endpoint which is more reliable for images (bypasses virus scan warnings and some 403s)
+            // sz=s2000 requests a large version (up to 2000px)
+            return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=s2000`;
+        }
+    }
+
+    return url;
+};
+
 export default function MyProfilePage() {
     const { user, isLoading: authLoading } = useAuthGuard(true);
     const { profile, fetchProfile } = useUserStore();
@@ -68,6 +85,16 @@ export default function MyProfilePage() {
     const [availabilityStatus, setAvailabilityStatus] = useState('Available');
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showOptionsDropdown, setShowOptionsDropdown] = useState(false);
+
+    const handleShare = () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Profile link copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy link: ', err);
+        });
+    };
 
     useEffect(() => {
         if (user) {
@@ -124,7 +151,8 @@ export default function MyProfilePage() {
         <div style={{ minHeight: '100vh', background: '#fafafa' }}>
             <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
                 <Navbar />
-                <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
+                {/* Main Area - Two Column Layout */}
+                <div style={{ flex: 1, display: 'flex', gap: '24px' }}>
                     {/* Main Content */}
                     <div style={{ flex: 1, maxWidth: '640px', minWidth: '0' }}>
                         {/* Header */}
@@ -149,45 +177,96 @@ export default function MyProfilePage() {
                                     {profile?.username || 'My Profile'}
                                 </h1>
                             </div>
-                            <button style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '8px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}>
-                                {Icons.moreVertical()}
-                            </button>
+                            <div style={{ position: 'relative' }}>
+                                <button
+                                    onClick={() => setShowOptionsDropdown(!showOptionsDropdown)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    {Icons.moreVertical()}
+                                </button>
+                                {showOptionsDropdown && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        right: 0,
+                                        background: 'white',
+                                        border: '1px solid #eaeaea',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        zIndex: 100,
+                                        minWidth: '150px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <button
+                                            onClick={() => {
+                                                handleShare();
+                                                setShowOptionsDropdown(false);
+                                            }}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '10px 16px',
+                                                border: 'none',
+                                                background: 'white',
+                                                textAlign: 'left',
+                                                fontSize: '14px',
+                                                cursor: 'pointer',
+                                                color: '#1a1a2e'
+                                            }}
+                                        >
+                                            Copy Link
+                                        </button>
+                                        <Link
+                                            href="/settings"
+                                            onClick={() => setShowOptionsDropdown(false)}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '10px 16px',
+                                                border: 'none',
+                                                background: 'white',
+                                                textAlign: 'left',
+                                                fontSize: '14px',
+                                                cursor: 'pointer',
+                                                color: '#1a1a2e',
+                                                textDecoration: 'none'
+                                            }}
+                                        >
+                                            Settings
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Cover Image */}
                         <div style={{
                             position: 'relative',
                             height: '180px',
-                            background: profile?.creator?.coverImageUrl
-                                ? `url(${getEmbedUrl(profile.creator.coverImageUrl)}) center/cover`
-                                : 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-                            borderRadius: '0'
+                            background: !profile?.creator?.coverImageUrl ? 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' : undefined,
+                            borderRadius: '0',
+                            overflow: 'hidden'
                         }}>
-                            {/* Close button on cover */}
-                            <button style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: '50%',
-                                background: 'rgba(0,0,0,0.5)',
-                                border: 'none',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                {Icons.close()}
-                            </button>
+                            {profile?.creator?.coverImageUrl && (
+                                <img
+                                    src={getEmbedUrl(profile.creator.coverImageUrl)}
+                                    alt="Cover"
+                                    referrerPolicy="no-referrer"
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+                            )}
+
                         </div>
 
                         {/* Profile Info Section */}
@@ -210,18 +289,30 @@ export default function MyProfilePage() {
                                         height: '80px',
                                         borderRadius: '50%',
                                         border: '3px solid white',
-                                        background: profile?.avatarUrl
-                                            ? `url(${getEmbedUrl(profile.avatarUrl)}) center/cover`
-                                            : '#ff4444',
+                                        background: !profile?.avatarUrl ? '#ff4444' : undefined,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         color: 'white',
                                         fontWeight: 'bold',
                                         fontSize: '24px',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                        overflow: 'hidden'
                                     }}>
-                                        {!profile?.avatarUrl && (profile?.username?.[0]?.toUpperCase() || 'U')}
+                                        {profile?.avatarUrl ? (
+                                            <img
+                                                src={getEmbedUrl(profile.avatarUrl)}
+                                                alt={profile.username || 'User'}
+                                                referrerPolicy="no-referrer"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover'
+                                                }}
+                                            />
+                                        ) : (
+                                            !profile?.avatarUrl && (profile?.username?.[0]?.toUpperCase() || 'U')
+                                        )}
                                     </div>
                                     {/* Online indicator */}
                                     <div style={{
@@ -237,7 +328,7 @@ export default function MyProfilePage() {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div style={{ display: 'flex', gap: '8px', paddingBottom: '8px' }}>
+                                <div style={{ display: 'flex', gap: '8px' }}>
                                     <Link
                                         href="/settings"
                                         style={{
@@ -258,15 +349,18 @@ export default function MyProfilePage() {
                                         {Icons.settings()}
                                         EDIT PROFILE
                                     </Link>
-                                    <button style={{
-                                        padding: '8px 12px',
-                                        borderRadius: '20px',
-                                        border: '1px solid #ddd',
-                                        background: 'white',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}>
+                                    <button
+                                        onClick={handleShare}
+                                        style={{
+                                            padding: '8px 12px',
+                                            borderRadius: '20px',
+                                            border: '1px solid #ddd',
+                                            background: 'white',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                    >
                                         {Icons.share()}
                                     </button>
                                 </div>
@@ -466,90 +560,52 @@ export default function MyProfilePage() {
                             )}
                         </div>
                     </div>
-
                     {/* Right Sidebar */}
-                    <div style={{ width: '320px', flexShrink: 0, paddingTop: '20px' }}>
-                        {/* Search Box */}
-                        <div style={{
-                            background: 'white',
-                            borderRadius: '30px',
-                            padding: '12px 20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            border: '1px solid #eaeaea',
-                            marginBottom: '24px'
-                        }}>
-                            {Icons.search()}
+                    <div style={{ width: '320px', flexShrink: 0, position: 'sticky', top: '80px', height: 'fit-content', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {/* Search */}
+                        <div style={{ background: 'white', border: '1px solid #dbdbdb', borderRadius: '4px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8a96a3" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             <input
                                 type="text"
+                                placeholder="Search your posts"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search posts"
-                                style={{
-                                    border: 'none',
-                                    outline: 'none',
-                                    flex: 1,
-                                    fontSize: '14px',
-                                    color: '#1a1a2e',
-                                    background: 'transparent'
-                                }}
+                                style={{ border: 'none', outline: 'none', flex: 1, fontSize: '14px', color: '#242529' }}
                             />
                             {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        color: '#8a96a3',
-                                        fontSize: '16px'
-                                    }}
-                                >
-                                    ×
-                                </button>
+                                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8a96a3', fontSize: '16px' }}>×</button>
                             )}
                         </div>
 
-                        {/* Spotify Integration */}
-                        <div style={{
-                            background: 'white',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            border: '1px solid #eaeaea',
-                            marginBottom: '24px'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '12px'
-                            }}>
-                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e' }}>SPOTIFY</span>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a96a3" strokeWidth="2">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                </svg>
+                        {/* Quick Links */}
+                        <div style={{ background: 'white', border: '1px solid #dbdbdb', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ padding: '16px' }}>
+                                <h3 style={{ margin: '0 0 12px', fontSize: '12px', fontWeight: 700, color: '#8a96a3', textTransform: 'uppercase' }}>QUICK LINKS</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <Link href="/settings" style={{ color: '#242529', textDecoration: 'none', fontSize: '14px', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                        Settings
+                                    </Link>
+                                    {profile?.creator?.id && (
+                                        <>
+                                            <Link href="/creator/dashboard" style={{ color: '#242529', textDecoration: 'none', fontSize: '14px', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                                Creator Dashboard
+                                            </Link>
+                                            <Link href="/creator/upload" style={{ color: '#242529', textDecoration: 'none', fontSize: '14px', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                                New Post
+                                            </Link>
+                                        </>
+                                    )}
+                                    {!profile?.creator?.id && (
+                                        <Link href="/become-creator" style={{ color: '#00aeef', textDecoration: 'none', fontSize: '14px', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 600 }}>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                            Become a Creator
+                                        </Link>
+                                    )}
+                                </div>
                             </div>
-                            <button style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '25px',
-                                border: 'none',
-                                background: '#1DB954',
-                                color: 'white',
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px'
-                            }}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                                    <circle cx="12" cy="12" r="10" />
-                                </svg>
-                                SIGN IN WITH SPOTIFY
-                            </button>
                         </div>
 
                         {/* Footer Links */}
@@ -572,4 +628,3 @@ export default function MyProfilePage() {
         </div>
     );
 }
-
