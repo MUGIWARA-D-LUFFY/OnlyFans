@@ -104,6 +104,11 @@ export default function ProfilePage() {
       await paymentService.subscribe(profile.creator.id);
       setIsSubscribed(true);
       setShowSubscribeModal(false);
+
+      // Refetch posts to update locked status
+      const postsData = await postService.getCreatorPosts(profile.creator.id);
+      setPosts(postsData.posts || []);
+
       alert('Successfully subscribed!');
     } catch (error) {
       console.error('Subscription failed:', error);
@@ -932,11 +937,19 @@ export default function ProfilePage() {
             overflow: 'hidden', position: 'relative'
           }} onClick={e => e.stopPropagation()}>
 
-            {/* Modal Header */}
-            <div style={{ height: '80px', background: profile?.creator?.coverImageUrl ? `url(${getEmbedUrl(profile.creator.coverImageUrl)}) center/cover` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', position: 'relative' }}>
+            {/* Modal Header with Cover */}
+            <div style={{ height: '100px', position: 'relative', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', overflow: 'hidden' }}>
+              {profile?.creator?.coverImageUrl && (
+                <img
+                  src={getEmbedUrl(profile.creator.coverImageUrl)}
+                  alt="Cover"
+                  referrerPolicy="no-referrer"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+                />
+              )}
               <button
                 onClick={() => setShowSubscribeModal(false)}
-                style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', color: 'white', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: '30px', height: '30px', color: 'white', cursor: 'pointer', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
                 ✕
               </button>
             </div>
@@ -944,7 +957,12 @@ export default function ProfilePage() {
             {/* Avatar Overlay */}
             <div style={{ marginTop: '-40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {profile?.avatarUrl ? (
-                <img src={getEmbedUrl(profile.avatarUrl)} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid white', objectFit: 'cover' }} />
+                <img
+                  src={getEmbedUrl(profile.avatarUrl)}
+                  alt="Avatar"
+                  referrerPolicy="no-referrer"
+                  style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid white', objectFit: 'cover' }}
+                />
               ) : (
                 <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#00aeef', border: '4px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '32px', fontWeight: 'bold' }}>
                   {username?.[0]?.toUpperCase() || 'U'}
