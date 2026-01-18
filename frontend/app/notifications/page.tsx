@@ -8,6 +8,7 @@ import * as notificationService from '../../services/notification.service';
 import type { Notification } from '../../services/notification.service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getEmbedUrl } from '../../utils/imageUtils';
 
 interface Creator {
   id: string;
@@ -199,504 +200,504 @@ export default function NotificationsPage() {
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
         <Navbar />
         <div style={{ flex: 1, maxWidth: '600px', paddingLeft: '24px' }}>
-        {/* Main Content Area */}
-        <div style={{ flex: 1, maxWidth: '640px', minWidth: '0' }}>
-          {/* Header */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '20px 0',
-            borderBottom: '1px solid #eaeaea'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button
-                onClick={() => router.back()}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#1a1a2e'
-                }}
-              >
-                {Icons.back()}
-              </button>
-              <h1 style={{
-                fontSize: '20px',
-                fontWeight: 700,
-                color: '#1a1a2e',
-                margin: 0,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                NOTIFICATIONS
-              </h1>
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => setShowSearchInput(!showSearchInput)}
-                style={{
-                  background: showSearchInput ? '#f0f0f0' : 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                {Icons.search()}
-              </button>
-              <button
-                onClick={() => router.push('/settings')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                {Icons.settings()}
-              </button>
-            </div>
-          </div>
-
-          {/* Search Input */}
-          {showSearchInput && (
-            <div style={{
-              padding: '12px 0',
-              borderBottom: '1px solid #eaeaea'
-            }}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notifications..."
-                autoFocus
-                style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  border: '1px solid #eaeaea',
-                  borderRadius: '25px',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
-              />
-            </div>
-          )}
-
-          {/* Filter Tabs */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            padding: '16px 0',
-            borderBottom: '1px solid #eaeaea',
-            flexWrap: 'wrap',
-            alignItems: 'center'
-          }}>
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: activeTab === tab.id ? 'none' : '1px solid #ddd',
-                  background: activeTab === tab.id ? '#00aeef' : 'white',
-                  color: activeTab === tab.id ? 'white' : '#1a1a2e',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-            <button style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: 'auto'
-            }}>
-              {Icons.pencil()}
-            </button>
-          </div>
-
-          {/* Notifications Content */}
-          <div style={{ paddingTop: '16px' }}>
-            {loadingNotifications ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                <p style={{ color: '#8a96a3', fontSize: '15px' }}>Loading notifications...</p>
-              </div>
-            ) : notifications.length === 0 ? (
-              <div style={{ paddingTop: '60px', textAlign: 'center' }}>
-                <p style={{ color: '#8a96a3', fontSize: '15px', margin: 0 }}>
-                  No notifications currently!
-                </p>
-              </div>
-            ) : (
-              <div>
-                {notifications.filter((n) => !n.isRead).length > 0 && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#00aeef',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      marginBottom: '12px',
-                      padding: 0
-                    }}
-                  >
-                    Mark all as read
-                  </button>
-                )}
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
-                    style={{
-                      padding: '16px',
-                      borderBottom: '1px solid #eaeaea',
-                      background: notification.isRead ? 'transparent' : '#f0f8ff',
-                      cursor: notification.isRead ? 'default' : 'pointer',
-                      transition: 'background 0.2s'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      {/* Icon based on type */}
-                      <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: notification.type === 'LIKE' ? '#fee2e2'
-                          : notification.type === 'SUBSCRIPTION' ? '#dcfce7'
-                            : notification.type === 'TIP' ? '#fef3c7'
-                              : '#e0f2fe',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px'
-                      }}>
-                        {notification.type === 'LIKE' && '❤️'}
-                        {notification.type === 'COMMENT' && '💬'}
-                        {notification.type === 'MENTION' && '@'}
-                        {notification.type === 'SUBSCRIPTION' && '🎉'}
-                        {notification.type === 'TIP' && '💵'}
-                        {notification.type === 'PROMOTION' && '📢'}
-                        {notification.type === 'SYSTEM' && '🔔'}
-                      </div>
-                      {/* Content */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: notification.isRead ? 400 : 600,
-                          color: '#1a1a2e',
-                          marginBottom: '4px'
-                        }}>
-                          {notification.title}
-                        </div>
-                        <div style={{ fontSize: '13px', color: '#8a96a3' }}>
-                          {notification.message}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#8a96a3', marginTop: '4px' }}>
-                          {new Date(notification.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                      {/* Unread indicator */}
-                      {!notification.isRead && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          background: '#00aeef'
-                        }} />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Sidebar */}
-        <div style={{ width: '320px', flexShrink: 0, paddingTop: '20px' }}>
-          {/* Search Box */}
-          <div style={{
-            background: 'white',
-            borderRadius: '30px',
-            padding: '12px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            border: '1px solid #eaeaea',
-            marginBottom: '24px'
-          }}>
-            {Icons.search()}
-            <input
-              type="text"
-              placeholder="Search posts"
-              style={{
-                border: 'none',
-                outline: 'none',
-                flex: 1,
-                fontSize: '14px',
-                color: '#1a1a2e',
-                background: 'transparent'
-              }}
-            />
-          </div>
-
-          {/* Suggestions Section */}
-          <div style={{ marginBottom: '24px' }}>
+          {/* Main Content Area */}
+          <div style={{ flex: 1, maxWidth: '640px', minWidth: '0' }}>
+            {/* Header */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '16px'
+              padding: '20px 0',
+              borderBottom: '1px solid #eaeaea'
             }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#8a96a3',
-                textTransform: 'uppercase',
-                margin: 0,
-                letterSpacing: '0.5px'
-              }}>
-                SUGGESTIONS
-              </h3>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  {Icons.filter()}
-                </button>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  {Icons.refresh()}
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button
-                  onClick={prevSuggestion}
+                  onClick={() => router.back()}
                   style={{
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: '4px',
+                    padding: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#1a1a2e'
+                  }}
+                >
+                  {Icons.back()}
+                </button>
+                <h1 style={{
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: '#1a1a2e',
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  NOTIFICATIONS
+                </h1>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setShowSearchInput(!showSearchInput)}
+                  style={{
+                    background: showSearchInput ? '#f0f0f0' : 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center'
                   }}
                 >
-                  {Icons.chevronLeft()}
+                  {Icons.search()}
                 </button>
                 <button
-                  onClick={nextSuggestion}
+                  onClick={() => router.push('/settings')}
                   style={{
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    padding: '4px',
+                    padding: '8px',
                     display: 'flex',
                     alignItems: 'center'
                   }}
                 >
-                  {Icons.chevronRight()}
+                  {Icons.settings()}
                 </button>
               </div>
             </div>
 
-            {/* Suggestion Cards */}
-            {loadingCreators ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                <p style={{ color: '#8a96a3', fontSize: '14px' }}>Loading suggestions...</p>
+            {/* Search Input */}
+            {showSearchInput && (
+              <div style={{
+                padding: '12px 0',
+                borderBottom: '1px solid #eaeaea'
+              }}>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search notifications..."
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    border: '1px solid #eaeaea',
+                    borderRadius: '25px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
               </div>
-            ) : creators.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {creators.slice(suggestionIndex, suggestionIndex + 3).map((creator) => (
-                  <Link
-                    key={creator.id}
-                    href={`/profile/${creator.user.username}`}
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <div style={{
-                      position: 'relative',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      height: '100px',
-                      background: creator.coverImageUrl
-                        ? `url(${creator.coverImageUrl}) center/cover`
-                        : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      cursor: 'pointer'
-                    }}>
-                      {/* Dark overlay */}
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%)'
-                      }} />
+            )}
 
-                      {/* Free Badge */}
-                      {creator.subscriptionFee === 0 && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '8px',
-                          left: '8px',
-                          background: 'rgba(0,0,0,0.6)',
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: 600
-                        }}>
-                          Free
-                        </div>
-                      )}
+            {/* Filter Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              padding: '16px 0',
+              borderBottom: '1px solid #eaeaea',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: activeTab === tab.id ? 'none' : '1px solid #ddd',
+                    background: activeTab === tab.id ? '#00aeef' : 'white',
+                    color: activeTab === tab.id ? 'white' : '#1a1a2e',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              <button style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                marginLeft: 'auto'
+              }}>
+                {Icons.pencil()}
+              </button>
+            </div>
 
-                      {/* More button */}
-                      <button style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
+            {/* Notifications Content */}
+            <div style={{ paddingTop: '16px' }}>
+              {loadingNotifications ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <p style={{ color: '#8a96a3', fontSize: '15px' }}>Loading notifications...</p>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div style={{ paddingTop: '60px', textAlign: 'center' }}>
+                  <p style={{ color: '#8a96a3', fontSize: '15px', margin: 0 }}>
+                    No notifications currently!
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {notifications.filter((n) => !n.isRead).length > 0 && (
+                    <button
+                      onClick={handleMarkAllAsRead}
+                      style={{
                         background: 'none',
                         border: 'none',
+                        color: '#00aeef',
+                        fontSize: '13px',
                         cursor: 'pointer',
-                        color: 'white',
-                        padding: '4px'
-                      }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                          <circle cx="12" cy="5" r="2"></circle>
-                          <circle cx="12" cy="12" r="2"></circle>
-                          <circle cx="12" cy="19" r="2"></circle>
-                        </svg>
-                      </button>
-
-                      {/* Creator Info */}
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '12px',
-                        left: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px'
-                      }}>
-                        {/* Avatar */}
+                        marginBottom: '12px',
+                        padding: 0
+                      }}
+                    >
+                      Mark all as read
+                    </button>
+                  )}
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
+                      style={{
+                        padding: '16px',
+                        borderBottom: '1px solid #eaeaea',
+                        background: notification.isRead ? 'transparent' : '#f0f8ff',
+                        cursor: notification.isRead ? 'default' : 'pointer',
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        {/* Icon based on type */}
                         <div style={{
-                          width: '44px',
-                          height: '44px',
+                          width: '40px',
+                          height: '40px',
                           borderRadius: '50%',
-                          border: '2px solid white',
-                          overflow: 'hidden',
-                          background: creator.user.avatarUrl
-                            ? `url(${creator.user.avatarUrl}) center/cover`
-                            : '#00aeef',
+                          background: notification.type === 'LIKE' ? '#fee2e2'
+                            : notification.type === 'SUBSCRIPTION' ? '#dcfce7'
+                              : notification.type === 'TIP' ? '#fef3c7'
+                                : '#e0f2fe',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: 'white',
-                          fontWeight: 'bold',
                           fontSize: '18px'
                         }}>
-                          {!creator.user.avatarUrl && (creator.user.username?.[0]?.toUpperCase() || 'C')}
+                          {notification.type === 'LIKE' && '❤️'}
+                          {notification.type === 'COMMENT' && '💬'}
+                          {notification.type === 'MENTION' && '@'}
+                          {notification.type === 'SUBSCRIPTION' && '🎉'}
+                          {notification.type === 'TIP' && '💵'}
+                          {notification.type === 'PROMOTION' && '📢'}
+                          {notification.type === 'SYSTEM' && '🔔'}
                         </div>
-
-                        {/* Name and Username */}
-                        <div>
+                        {/* Content */}
+                        <div style={{ flex: 1 }}>
                           <div style={{
+                            fontSize: '14px',
+                            fontWeight: notification.isRead ? 400 : 600,
+                            color: '#1a1a2e',
+                            marginBottom: '4px'
+                          }}>
+                            {notification.title}
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#8a96a3' }}>
+                            {notification.message}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#8a96a3', marginTop: '4px' }}>
+                            {new Date(notification.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                        {/* Unread indicator */}
+                        {!notification.isRead && (
+                          <div style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            background: '#00aeef'
+                          }} />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Sidebar */}
+          <div style={{ width: '320px', flexShrink: 0, paddingTop: '20px' }}>
+            {/* Search Box */}
+            <div style={{
+              background: 'white',
+              borderRadius: '30px',
+              padding: '12px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              border: '1px solid #eaeaea',
+              marginBottom: '24px'
+            }}>
+              {Icons.search()}
+              <input
+                type="text"
+                placeholder="Search posts"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  flex: 1,
+                  fontSize: '14px',
+                  color: '#1a1a2e',
+                  background: 'transparent'
+                }}
+              />
+            </div>
+
+            {/* Suggestions Section */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px'
+              }}>
+                <h3 style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#8a96a3',
+                  textTransform: 'uppercase',
+                  margin: 0,
+                  letterSpacing: '0.5px'
+                }}>
+                  SUGGESTIONS
+                </h3>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    {Icons.filter()}
+                  </button>
+                  <button style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    {Icons.refresh()}
+                  </button>
+                  <button
+                    onClick={prevSuggestion}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {Icons.chevronLeft()}
+                  </button>
+                  <button
+                    onClick={nextSuggestion}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {Icons.chevronRight()}
+                  </button>
+                </div>
+              </div>
+
+              {/* Suggestion Cards */}
+              {loadingCreators ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                  <p style={{ color: '#8a96a3', fontSize: '14px' }}>Loading suggestions...</p>
+                </div>
+              ) : creators.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {creators.slice(suggestionIndex, suggestionIndex + 3).map((creator) => (
+                    <Link
+                      key={creator.id}
+                      href={`/profile/${creator.user.username}`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <div style={{
+                        position: 'relative',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        height: '100px',
+                        background: creator.coverImageUrl
+                          ? `url(${getEmbedUrl(creator.coverImageUrl)}) center/cover`
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        cursor: 'pointer'
+                      }}>
+                        {/* Dark overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%)'
+                        }} />
+
+                        {/* Free Badge */}
+                        {creator.subscriptionFee === 0 && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '8px',
+                            left: '8px',
+                            background: 'rgba(0,0,0,0.6)',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: 600
+                          }}>
+                            Free
+                          </div>
+                        )}
+
+                        {/* More button */}
+                        <button style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'white',
+                          padding: '4px'
+                        }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                            <circle cx="12" cy="5" r="2"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                            <circle cx="12" cy="19" r="2"></circle>
+                          </svg>
+                        </button>
+
+                        {/* Creator Info */}
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          left: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px'
+                        }}>
+                          {/* Avatar */}
+                          <div style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '50%',
+                            border: '2px solid white',
+                            overflow: 'hidden',
+                            background: creator.user.avatarUrl
+                              ? `url(${getEmbedUrl(creator.user.avatarUrl)}) center/cover`
+                              : '#00aeef',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            justifyContent: 'center',
                             color: 'white',
-                            fontWeight: 600,
-                            fontSize: '14px'
+                            fontWeight: 'bold',
+                            fontSize: '18px'
                           }}>
-                            {creator.user.username}
-                            {creator.verified && Icons.verified()}
+                            {!creator.user.avatarUrl && (creator.user.username?.[0]?.toUpperCase() || 'C')}
                           </div>
-                          <div style={{
-                            color: 'rgba(255,255,255,0.8)',
-                            fontSize: '12px'
-                          }}>
-                            @{creator.user.username}
+
+                          {/* Name and Username */}
+                          <div>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              color: 'white',
+                              fontWeight: 600,
+                              fontSize: '14px'
+                            }}>
+                              {creator.user.username}
+                              {creator.verified && Icons.verified()}
+                            </div>
+                            <div style={{
+                              color: 'rgba(255,255,255,0.8)',
+                              fontSize: '12px'
+                            }}>
+                              @{creator.user.username}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '40px 20px',
-                textAlign: 'center',
-                border: '1px solid #eaeaea'
-              }}>
-                <p style={{ color: '#8a96a3', fontSize: '14px', margin: 0 }}>
-                  No creators available yet.
-                </p>
-              </div>
-            )}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '40px 20px',
+                  textAlign: 'center',
+                  border: '1px solid #eaeaea'
+                }}>
+                  <p style={{ color: '#8a96a3', fontSize: '14px', margin: 0 }}>
+                    No creators available yet.
+                  </p>
+                </div>
+              )}
 
-            {/* Pagination Dots */}
-            {creators.length > 3 && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '6px',
-                marginTop: '16px'
-              }}>
-                {Array.from({ length: Math.ceil(creators.length / 3) }).map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: Math.floor(suggestionIndex / 3) === i ? '#00aeef' : '#d0d0d0'
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+              {/* Pagination Dots */}
+              {creators.length > 3 && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  marginTop: '16px'
+                }}>
+                  {Array.from({ length: Math.ceil(creators.length / 3) }).map((_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: Math.floor(suggestionIndex / 3) === i ? '#00aeef' : '#d0d0d0'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Footer Links */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            justifyContent: 'center',
-            fontSize: '12px',
-            color: '#8a96a3'
-          }}>
-            <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Privacy</a>
-            <span>·</span>
-            <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Cookie Notice</a>
-            <span>·</span>
-            <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Terms of Service</a>
+            {/* Footer Links */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'center',
+              fontSize: '12px',
+              color: '#8a96a3'
+            }}>
+              <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Privacy</a>
+              <span>·</span>
+              <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Cookie Notice</a>
+              <span>·</span>
+              <a href="#" style={{ color: '#8a96a3', textDecoration: 'none' }}>Terms of Service</a>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

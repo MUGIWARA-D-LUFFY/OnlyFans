@@ -9,6 +9,7 @@ import { useUserStore } from '../../store/user.store';
 import { useAuthGuard } from '../../utils/authGuard';
 import api from '../../services/api';
 import Link from 'next/link';
+import { getEmbedUrl } from '../../utils/imageUtils';
 
 interface Creator {
   id: string;
@@ -257,10 +258,10 @@ export default function FeedPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-      <div style={{ 
-        maxWidth: '1280px', 
+      <div style={{
+        maxWidth: '1280px',
         margin: '0 auto',
-        display: 'flex', 
+        display: 'flex',
         padding: '0 24px',
         gap: '24px'
       }}>
@@ -414,9 +415,9 @@ export default function FeedPage() {
         </div>
 
         {/* Right Sidebar */}
-        <div style={{ 
-          width: '320px', 
-          flexShrink: 0, 
+        <div style={{
+          width: '320px',
+          flexShrink: 0,
           paddingTop: '20px',
           position: 'sticky',
           top: 0,
@@ -557,7 +558,7 @@ export default function FeedPage() {
                       overflow: 'hidden',
                       height: '100px',
                       background: creator.coverImageUrl
-                        ? `url(${creator.coverImageUrl}) center/cover`
+                        ? `url(${getEmbedUrl(creator.coverImageUrl)}) center/cover`
                         : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       cursor: 'pointer'
                     }}>
@@ -620,7 +621,7 @@ export default function FeedPage() {
                           border: '2px solid white',
                           overflow: 'hidden',
                           background: creator.user.avatarUrl
-                            ? `url(${creator.user.avatarUrl}) center/cover`
+                            ? `url(${getEmbedUrl(creator.user.avatarUrl)}) center/cover`
                             : '#00aeef',
                           display: 'flex',
                           alignItems: 'center',

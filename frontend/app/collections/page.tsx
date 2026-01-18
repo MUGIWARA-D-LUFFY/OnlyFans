@@ -7,6 +7,7 @@ import api from '../../services/api';
 import * as postInteractions from '../../services/post-interactions.service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getEmbedUrl } from '../../utils/imageUtils';
 
 interface Creator {
     id: string;
@@ -222,494 +223,598 @@ export default function CollectionsPage() {
             <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
                 <Navbar />
                 <main style={{ flex: 1, display: 'flex', padding: '0' }}>
-                {/* Left Panel - Lists */}
-                <div style={{
-                    width: '320px',
-                    borderRight: '1px solid #eaeaea',
-                    background: 'white',
-                    minHeight: 'calc(100vh - 0px)'
-                }}>
-                    {/* Header */}
+                    {/* Left Panel - Lists */}
                     <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '16px 20px',
-                        borderBottom: '1px solid #eaeaea'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <button
-                                onClick={() => router.back()}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    color: '#1a1a2e',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    padding: '4px'
-                                }}
-                            >
-                                {Icons.back()}
-                            </button>
-                            <h1 style={{
-                                fontSize: '18px',
-                                fontWeight: 700,
-                                color: '#1a1a2e',
-                                margin: 0,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}>
-                                COLLECTIONS
-                            </h1>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                                onClick={() => setShowSearchInput(!showSearchInput)}
-                                style={{
-                                    background: showSearchInput ? '#f0f0f0' : 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '8px',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    color: '#1a1a2e'
-                                }}
-                            >
-                                {Icons.search()}
-                            </button>
-                            <button style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                color: '#1a1a2e'
-                            }}>
-                                {Icons.plus()}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Search Input */}
-                    {showSearchInput && (
-                        <div style={{
-                            padding: '12px 20px',
-                            borderBottom: '1px solid #eaeaea'
-                        }}>
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search..."
-                                autoFocus
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 16px',
-                                    border: '1px solid #eaeaea',
-                                    borderRadius: '25px',
-                                    fontSize: '14px',
-                                    outline: 'none'
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {/* Tabs */}
-                    <div style={{
-                        display: 'flex',
-                        borderBottom: '1px solid #eaeaea'
-                    }}>
-                        <button
-                            onClick={() => setActiveMainTab('userLists')}
-                            style={{
-                                flex: 1,
-                                padding: '14px 20px',
-                                background: 'none',
-                                border: 'none',
-                                borderBottom: activeMainTab === 'userLists' ? '2px solid #1a1a2e' : '2px solid transparent',
-                                color: activeMainTab === 'userLists' ? '#1a1a2e' : '#8a96a3',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}
-                        >
-                            USER LISTS
-                        </button>
-                        <button
-                            onClick={() => setActiveMainTab('bookmarks')}
-                            style={{
-                                flex: 1,
-                                padding: '14px 20px',
-                                background: 'none',
-                                border: 'none',
-                                borderBottom: activeMainTab === 'bookmarks' ? '2px solid #1a1a2e' : '2px solid transparent',
-                                color: activeMainTab === 'bookmarks' ? '#1a1a2e' : '#8a96a3',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}
-                        >
-                            BOOKMARKS
-                        </button>
-                    </div>
-
-                    {/* Custom Order Section */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px 20px',
-                        borderBottom: '1px solid #eaeaea'
-                    }}>
-                        <span style={{ fontSize: '12px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
-                            CUSTOM ORDER
-                        </span>
-                        <button style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex',
-                            alignItems: 'center'
-                        }}>
-                            {Icons.sort()}
-                        </button>
-                    </div>
-
-                    {/* List Items */}
-                    <div>
-                        {listCategories.map((list) => (
-                            <div
-                                key={list.id}
-                                onClick={() => setSelectedList(list.id)}
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '14px 20px',
-                                    cursor: 'pointer',
-                                    background: selectedList === list.id ? '#f0f8ff' : 'transparent',
-                                    borderLeft: selectedList === list.id ? '3px solid #00aeef' : '3px solid transparent',
-                                    transition: 'background 0.2s'
-                                }}
-                            >
-                                <div>
-                                    <div style={{
-                                        fontSize: '14px',
-                                        fontWeight: 500,
-                                        color: '#1a1a2e',
-                                        marginBottom: '2px'
-                                    }}>
-                                        {list.name}
-                                    </div>
-                                    <div style={{
-                                        fontSize: '12px',
-                                        color: getListCount(list.id) > 0 ? '#8a96a3' : '#00aeef'
-                                    }}>
-                                        {getListCount(list.id) > 0
-                                            ? `${getListCount(list.id)} users`
-                                            : 'empty'}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Right Panel - Details */}
-                <div style={{ flex: 1, background: '#fafafa' }}>
-                    {/* Header */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '16px 24px',
+                        width: '320px',
+                        borderRight: '1px solid #eaeaea',
                         background: 'white',
-                        borderBottom: '1px solid #eaeaea'
+                        minHeight: 'calc(100vh - 0px)'
                     }}>
-                        <h2 style={{
-                            fontSize: '18px',
-                            fontWeight: 700,
-                            color: '#1a1a2e',
-                            margin: 0,
-                            textTransform: 'uppercase'
-                        }}>
-                            {getSelectedListName()}
-                        </h2>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <button style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '8px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}>
-                                {Icons.pin()}
-                            </button>
-                            <button style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '8px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}>
-                                {Icons.moreVertical()}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Tabs */}
-                    <div style={{
-                        display: 'flex',
-                        background: 'white',
-                        borderBottom: '1px solid #eaeaea'
-                    }}>
-                        <button
-                            onClick={() => setActiveDetailTab('users')}
-                            style={{
-                                flex: 1,
-                                padding: '14px 20px',
-                                background: 'none',
-                                border: 'none',
-                                borderBottom: activeDetailTab === 'users' ? '2px solid #1a1a2e' : '2px solid transparent',
-                                color: activeDetailTab === 'users' ? '#1a1a2e' : '#8a96a3',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                textTransform: 'uppercase'
-                            }}
-                        >
-                            USERS
-                        </button>
-                        <button
-                            onClick={() => setActiveDetailTab('posts')}
-                            style={{
-                                flex: 1,
-                                padding: '14px 20px',
-                                background: 'none',
-                                border: 'none',
-                                borderBottom: activeDetailTab === 'posts' ? '2px solid #1a1a2e' : '2px solid transparent',
-                                color: activeDetailTab === 'posts' ? '#1a1a2e' : '#8a96a3',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                textTransform: 'uppercase'
-                            }}
-                        >
-                            POSTS
-                        </button>
-                    </div>
-
-                    {/* Content Area */}
-                    <div style={{ padding: '16px 24px' }}>
-                        {/* Section Header */}
+                        {/* Header */}
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '16px'
+                            padding: '16px 20px',
+                            borderBottom: '1px solid #eaeaea'
                         }}>
-                            <span style={{ fontSize: '12px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
-                                DEFAULT
-                            </span>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '4px',
-                                    display: 'flex',
-                                    alignItems: 'center'
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <button
+                                    onClick={() => router.back()}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#1a1a2e',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '4px'
+                                    }}
+                                >
+                                    {Icons.back()}
+                                </button>
+                                <h1 style={{
+                                    fontSize: '18px',
+                                    fontWeight: 700,
+                                    color: '#1a1a2e',
+                                    margin: 0,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
                                 }}>
+                                    COLLECTIONS
+                                </h1>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => setShowSearchInput(!showSearchInput)}
+                                    style={{
+                                        background: showSearchInput ? '#f0f0f0' : 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '8px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        color: '#1a1a2e'
+                                    }}
+                                >
                                     {Icons.search()}
                                 </button>
                                 <button style={{
                                     background: 'none',
                                     border: 'none',
                                     cursor: 'pointer',
-                                    padding: '4px',
+                                    padding: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    color: '#1a1a2e'
+                                }}>
+                                    {Icons.plus()}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Search Input */}
+                        {showSearchInput && (
+                            <div style={{
+                                padding: '12px 20px',
+                                borderBottom: '1px solid #eaeaea'
+                            }}>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search..."
+                                    autoFocus
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 16px',
+                                        border: '1px solid #eaeaea',
+                                        borderRadius: '25px',
+                                        fontSize: '14px',
+                                        outline: 'none'
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Tabs */}
+                        <div style={{
+                            display: 'flex',
+                            borderBottom: '1px solid #eaeaea'
+                        }}>
+                            <button
+                                onClick={() => setActiveMainTab('userLists')}
+                                style={{
+                                    flex: 1,
+                                    padding: '14px 20px',
+                                    background: 'none',
+                                    border: 'none',
+                                    borderBottom: activeMainTab === 'userLists' ? '2px solid #1a1a2e' : '2px solid transparent',
+                                    color: activeMainTab === 'userLists' ? '#1a1a2e' : '#8a96a3',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
+                                }}
+                            >
+                                USER LISTS
+                            </button>
+                            <button
+                                onClick={() => setActiveMainTab('bookmarks')}
+                                style={{
+                                    flex: 1,
+                                    padding: '14px 20px',
+                                    background: 'none',
+                                    border: 'none',
+                                    borderBottom: activeMainTab === 'bookmarks' ? '2px solid #1a1a2e' : '2px solid transparent',
+                                    color: activeMainTab === 'bookmarks' ? '#1a1a2e' : '#8a96a3',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
+                                }}
+                            >
+                                BOOKMARKS
+                            </button>
+                        </div>
+
+                        {/* Custom Order Section */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 20px',
+                            borderBottom: '1px solid #eaeaea'
+                        }}>
+                            <span style={{ fontSize: '12px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
+                                CUSTOM ORDER
+                            </span>
+                            <button style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}>
+                                {Icons.sort()}
+                            </button>
+                        </div>
+
+                        {/* List Items */}
+                        <div>
+                            {listCategories.map((list) => (
+                                <div
+                                    key={list.id}
+                                    onClick={() => setSelectedList(list.id)}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '14px 20px',
+                                        cursor: 'pointer',
+                                        background: selectedList === list.id ? '#f0f8ff' : 'transparent',
+                                        borderLeft: selectedList === list.id ? '3px solid #00aeef' : '3px solid transparent',
+                                        transition: 'background 0.2s'
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{
+                                            fontSize: '14px',
+                                            fontWeight: 500,
+                                            color: '#1a1a2e',
+                                            marginBottom: '2px'
+                                        }}>
+                                            {list.name}
+                                        </div>
+                                        <div style={{
+                                            fontSize: '12px',
+                                            color: getListCount(list.id) > 0 ? '#8a96a3' : '#00aeef'
+                                        }}>
+                                            {getListCount(list.id) > 0
+                                                ? `${getListCount(list.id)} users`
+                                                : 'empty'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right Panel - Details */}
+                    <div style={{ flex: 1, background: '#fafafa' }}>
+                        {/* Header */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '16px 24px',
+                            background: 'white',
+                            borderBottom: '1px solid #eaeaea'
+                        }}>
+                            <h2 style={{
+                                fontSize: '18px',
+                                fontWeight: 700,
+                                color: '#1a1a2e',
+                                margin: 0,
+                                textTransform: 'uppercase'
+                            }}>
+                                {getSelectedListName()}
+                            </h2>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '8px',
                                     display: 'flex',
                                     alignItems: 'center'
                                 }}>
-                                    {Icons.filter()}
+                                    {Icons.pin()}
                                 </button>
                                 <button style={{
                                     background: 'none',
                                     border: 'none',
                                     cursor: 'pointer',
-                                    padding: '4px',
+                                    padding: '8px',
                                     display: 'flex',
                                     alignItems: 'center'
                                 }}>
-                                    {Icons.sort()}
+                                    {Icons.moreVertical()}
                                 </button>
                             </div>
                         </div>
 
-                        {/* User Cards */}
-                        {filteredCreators.length > 0 ? (
+                        {/* Tabs */}
+                        <div style={{
+                            display: 'flex',
+                            background: 'white',
+                            borderBottom: '1px solid #eaeaea'
+                        }}>
+                            <button
+                                onClick={() => setActiveDetailTab('users')}
+                                style={{
+                                    flex: 1,
+                                    padding: '14px 20px',
+                                    background: 'none',
+                                    border: 'none',
+                                    borderBottom: activeDetailTab === 'users' ? '2px solid #1a1a2e' : '2px solid transparent',
+                                    color: activeDetailTab === 'users' ? '#1a1a2e' : '#8a96a3',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                USERS
+                            </button>
+                            <button
+                                onClick={() => setActiveDetailTab('posts')}
+                                style={{
+                                    flex: 1,
+                                    padding: '14px 20px',
+                                    background: 'none',
+                                    border: 'none',
+                                    borderBottom: activeDetailTab === 'posts' ? '2px solid #1a1a2e' : '2px solid transparent',
+                                    color: activeDetailTab === 'posts' ? '#1a1a2e' : '#8a96a3',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                POSTS
+                            </button>
+                        </div>
+
+                        {/* Content Area */}
+                        <div style={{ padding: '16px 24px' }}>
+                            {/* Section Header */}
                             <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                                gap: '16px'
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '16px'
                             }}>
-                                {filteredCreators.map((creator) => (
-                                    <div
-                                        key={creator.id}
-                                        style={{
-                                            background: 'white',
-                                            borderRadius: '12px',
-                                            overflow: 'hidden',
-                                            border: '1px solid #eaeaea'
-                                        }}
-                                    >
-                                        {/* Cover Image */}
-                                        <div style={{
-                                            height: '80px',
-                                            background: creator.coverImageUrl
-                                                ? `url(${creator.coverImageUrl}) center/cover`
-                                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            position: 'relative'
-                                        }}>
-                                            <button style={{
-                                                position: 'absolute',
-                                                top: '8px',
-                                                right: '8px',
-                                                background: 'none',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                color: 'white',
-                                                padding: '4px'
-                                            }}>
-                                                {Icons.pin()}
-                                            </button>
-                                        </div>
+                                <span style={{ fontSize: '12px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
+                                    DEFAULT
+                                </span>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}>
+                                        {Icons.search()}
+                                    </button>
+                                    <button style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}>
+                                        {Icons.filter()}
+                                    </button>
+                                    <button style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}>
+                                        {Icons.sort()}
+                                    </button>
+                                </div>
+                            </div>
 
-                                        {/* User Info */}
-                                        <div style={{ padding: '0 16px 16px', marginTop: '-24px' }}>
-                                            {/* Avatar */}
-                                            <div style={{
-                                                width: '56px',
-                                                height: '56px',
-                                                borderRadius: '50%',
-                                                border: '3px solid white',
-                                                background: creator.user.avatarUrl
-                                                    ? `url(${creator.user.avatarUrl}) center/cover`
-                                                    : '#00aeef',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: 'white',
-                                                fontWeight: 'bold',
-                                                fontSize: '20px',
-                                                marginBottom: '8px'
-                                            }}>
-                                                {!creator.user.avatarUrl && creator.user.username[0].toUpperCase()}
-                                            </div>
-
-                                            {/* Name */}
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                <span style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a2e' }}>
-                                                    {creator.user.username}
-                                                </span>
-                                                {creator.verified && Icons.verified()}
-                                            </div>
-                                            <div style={{ fontSize: '13px', color: '#8a96a3', marginBottom: '12px' }}>
-                                                @{creator.user.username}
-                                            </div>
-
-                                            {/* Stats */}
-                                            {creator._count && (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '12px',
-                                                    marginBottom: '12px',
-                                                    fontSize: '12px',
-                                                    color: '#8a96a3'
-                                                }}>
-                                                    <span>{creator._count.posts} posts</span>
-                                                    <span>·</span>
-                                                    <span>{creator._count.subscriptions} subscribers</span>
-                                                </div>
-                                            )}
-
-                                            {/* Subscribe Button */}
-                                            <Link
-                                                href={`/profile/${creator.user.username}`}
-                                                style={{
-                                                    width: '100%',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    padding: '12px 16px',
-                                                    background: '#00aeef',
-                                                    border: 'none',
-                                                    borderRadius: '25px',
-                                                    cursor: 'pointer',
-                                                    textDecoration: 'none'
-                                                }}
-                                            >
-                                                <span style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>
-                                                    {creator.subscriptionFee === 0 ? 'FREE' : 'SUBSCRIBE'}
-                                                </span>
-                                                <span style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>
-                                                    {creator.subscriptionFee === 0
-                                                        ? 'Follow for free'
-                                                        : `$${creator.subscriptionFee}/month`}
-                                                </span>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* Add User Card */}
+                            {/* User Cards */}
+                            {filteredCreators.length > 0 ? (
                                 <div style={{
-                                    background: 'white',
-                                    borderRadius: '12px',
-                                    border: '1px dashed #ddd',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    minHeight: '280px',
-                                    cursor: 'pointer'
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                    gap: '16px'
                                 }}>
+                                    {filteredCreators.map((creator) => (
+                                        <div
+                                            key={creator.id}
+                                            style={{
+                                                background: 'white',
+                                                borderRadius: '12px',
+                                                overflow: 'hidden',
+                                                border: '1px solid #eaeaea'
+                                            }}
+                                        >
+                                            {/* Cover Image */}
+                                            <div style={{
+                                                height: '80px',
+                                                background: creator.coverImageUrl
+                                                    ? `url(${getEmbedUrl(creator.coverImageUrl)}) center/cover`
+                                                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                position: 'relative'
+                                            }}>
+                                                <button style={{
+                                                    position: 'absolute',
+                                                    top: '8px',
+                                                    right: '8px',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: 'white',
+                                                    padding: '4px'
+                                                }}>
+                                                    {Icons.pin()}
+                                                </button>
+                                            </div>
+
+                                            {/* User Info */}
+                                            <div style={{ padding: '0 16px 16px', marginTop: '-24px' }}>
+                                                {/* Avatar */}
+                                                <div style={{
+                                                    width: '56px',
+                                                    height: '56px',
+                                                    borderRadius: '50%',
+                                                    border: '3px solid white',
+                                                    background: creator.user.avatarUrl
+                                                        ? `url(${getEmbedUrl(creator.user.avatarUrl)}) center/cover`
+                                                        : '#00aeef',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: 'white',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '20px',
+                                                    marginBottom: '8px'
+                                                }}>
+                                                    {!creator.user.avatarUrl && creator.user.username[0].toUpperCase()}
+                                                </div>
+
+                                                {/* Name */}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                    <span style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a2e' }}>
+                                                        {creator.user.username}
+                                                    </span>
+                                                    {creator.verified && Icons.verified()}
+                                                </div>
+                                                <div style={{ fontSize: '13px', color: '#8a96a3', marginBottom: '12px' }}>
+                                                    @{creator.user.username}
+                                                </div>
+
+                                                {/* Stats */}
+                                                {creator._count && (
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '12px',
+                                                        marginBottom: '12px',
+                                                        fontSize: '12px',
+                                                        color: '#8a96a3'
+                                                    }}>
+                                                        <span>{creator._count.posts} posts</span>
+                                                        <span>·</span>
+                                                        <span>{creator._count.subscriptions} subscribers</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Subscribe Button */}
+                                                <Link
+                                                    href={`/profile/${creator.user.username}`}
+                                                    style={{
+                                                        width: '100%',
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        padding: '12px 16px',
+                                                        background: '#00aeef',
+                                                        border: 'none',
+                                                        borderRadius: '25px',
+                                                        cursor: 'pointer',
+                                                        textDecoration: 'none'
+                                                    }}
+                                                >
+                                                    <span style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>
+                                                        {creator.subscriptionFee === 0 ? 'FREE' : 'SUBSCRIBE'}
+                                                    </span>
+                                                    <span style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>
+                                                        {creator.subscriptionFee === 0
+                                                            ? 'Follow for free'
+                                                            : `$${creator.subscriptionFee}/month`}
+                                                    </span>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Add User Card */}
                                     <div style={{
-                                        width: '48px',
-                                        height: '48px',
-                                        borderRadius: '50%',
-                                        border: '2px solid #ddd',
+                                        background: 'white',
+                                        borderRadius: '12px',
+                                        border: '1px dashed #ddd',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        color: '#8a96a3'
+                                        minHeight: '280px',
+                                        cursor: 'pointer'
                                     }}>
-                                        {Icons.plus()}
+                                        <div style={{
+                                            width: '48px',
+                                            height: '48px',
+                                            borderRadius: '50%',
+                                            border: '2px solid #ddd',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#8a96a3'
+                                        }}>
+                                            {Icons.plus()}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : filteredCreators.length === 0 && activeMainTab === 'bookmarks' ? (
-                            /* Bookmarks View */
-                            loadingBookmarks ? (
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: '60px 20px',
-                                    textAlign: 'center'
-                                }}>
-                                    <p style={{ color: '#8a96a3', fontSize: '15px' }}>Loading bookmarks...</p>
-                                </div>
-                            ) : bookmarks.length === 0 ? (
+                            ) : filteredCreators.length === 0 && activeMainTab === 'bookmarks' ? (
+                                /* Bookmarks View */
+                                loadingBookmarks ? (
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '60px 20px',
+                                        textAlign: 'center'
+                                    }}>
+                                        <p style={{ color: '#8a96a3', fontSize: '15px' }}>Loading bookmarks...</p>
+                                    </div>
+                                ) : bookmarks.length === 0 ? (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '80px 20px',
+                                        textAlign: 'center'
+                                    }}>
+                                        {Icons.emptySearch()}
+                                        <p style={{ color: '#8a96a3', fontSize: '15px', marginTop: '16px' }}>
+                                            No bookmarks yet
+                                        </p>
+                                        <p style={{ color: '#8a96a3', fontSize: '13px', marginTop: '8px' }}>
+                                            Save posts by clicking the bookmark icon on any post
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                                        gap: '16px'
+                                    }}>
+                                        {bookmarks.map((bookmark) => (
+                                            <div
+                                                key={bookmark.id}
+                                                style={{
+                                                    background: 'white',
+                                                    borderRadius: '12px',
+                                                    overflow: 'hidden',
+                                                    border: '1px solid #eaeaea',
+                                                    position: 'relative'
+                                                }}
+                                            >
+                                                {/* Remove bookmark button */}
+                                                <button
+                                                    onClick={() => handleRemoveBookmark(bookmark.postId)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '8px',
+                                                        right: '8px',
+                                                        background: 'rgba(0,0,0,0.5)',
+                                                        border: 'none',
+                                                        borderRadius: '50%',
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        cursor: 'pointer',
+                                                        color: 'white',
+                                                        zIndex: 10
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                                {/* Thumbnail */}
+                                                <div style={{
+                                                    height: '160px',
+                                                    background: bookmark.post?.mediaUrl
+                                                        ? `url(${bookmark.post.mediaUrl}) center/cover`
+                                                        : '#f0f0f0',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}>
+                                                    {!bookmark.post?.mediaUrl && <span style={{ fontSize: '32px' }}>📌</span>}
+                                                </div>
+                                                {/* Info */}
+                                                <div style={{ padding: '12px' }}>
+                                                    {bookmark.post?.title && (
+                                                        <p style={{
+                                                            fontSize: '14px',
+                                                            color: '#1a1a2e',
+                                                            margin: '0 0 4px',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}>
+                                                            {bookmark.post.title}
+                                                        </p>
+                                                    )}
+                                                    {bookmark.post?.creator?.user?.username && (
+                                                        <p style={{
+                                                            fontSize: '12px',
+                                                            color: '#00aeef',
+                                                            margin: '0 0 4px'
+                                                        }}>
+                                                            @{bookmark.post.creator.user.username}
+                                                        </p>
+                                                    )}
+                                                    <p style={{
+                                                        fontSize: '12px',
+                                                        color: '#8a96a3',
+                                                        margin: 0
+                                                    }}>
+                                                        Saved {new Date(bookmark.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            ) : (
+                                /* Empty State */
                                 <div style={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -719,122 +824,18 @@ export default function CollectionsPage() {
                                     textAlign: 'center'
                                 }}>
                                     {Icons.emptySearch()}
-                                    <p style={{ color: '#8a96a3', fontSize: '15px', marginTop: '16px' }}>
-                                        No bookmarks yet
-                                    </p>
-                                    <p style={{ color: '#8a96a3', fontSize: '13px', marginTop: '8px' }}>
-                                        Save posts by clicking the bookmark icon on any post
+                                    <p style={{
+                                        color: '#8a96a3',
+                                        fontSize: '15px',
+                                        marginTop: '16px'
+                                    }}>
+                                        Nothing found
                                     </p>
                                 </div>
-                            ) : (
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                                    gap: '16px'
-                                }}>
-                                    {bookmarks.map((bookmark) => (
-                                        <div
-                                            key={bookmark.id}
-                                            style={{
-                                                background: 'white',
-                                                borderRadius: '12px',
-                                                overflow: 'hidden',
-                                                border: '1px solid #eaeaea',
-                                                position: 'relative'
-                                            }}
-                                        >
-                                            {/* Remove bookmark button */}
-                                            <button
-                                                onClick={() => handleRemoveBookmark(bookmark.postId)}
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '8px',
-                                                    right: '8px',
-                                                    background: 'rgba(0,0,0,0.5)',
-                                                    border: 'none',
-                                                    borderRadius: '50%',
-                                                    width: '28px',
-                                                    height: '28px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    cursor: 'pointer',
-                                                    color: 'white',
-                                                    zIndex: 10
-                                                }}
-                                            >
-                                                ×
-                                            </button>
-                                            {/* Thumbnail */}
-                                            <div style={{
-                                                height: '160px',
-                                                background: bookmark.post?.mediaUrl
-                                                    ? `url(${bookmark.post.mediaUrl}) center/cover`
-                                                    : '#f0f0f0',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                {!bookmark.post?.mediaUrl && <span style={{ fontSize: '32px' }}>📌</span>}
-                                            </div>
-                                            {/* Info */}
-                                            <div style={{ padding: '12px' }}>
-                                                {bookmark.post?.title && (
-                                                    <p style={{
-                                                        fontSize: '14px',
-                                                        color: '#1a1a2e',
-                                                        margin: '0 0 4px',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap'
-                                                    }}>
-                                                        {bookmark.post.title}
-                                                    </p>
-                                                )}
-                                                {bookmark.post?.creator?.user?.username && (
-                                                    <p style={{
-                                                        fontSize: '12px',
-                                                        color: '#00aeef',
-                                                        margin: '0 0 4px'
-                                                    }}>
-                                                        @{bookmark.post.creator.user.username}
-                                                    </p>
-                                                )}
-                                                <p style={{
-                                                    fontSize: '12px',
-                                                    color: '#8a96a3',
-                                                    margin: 0
-                                                }}>
-                                                    Saved {new Date(bookmark.createdAt).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )
-                        ) : (
-                            /* Empty State */
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '80px 20px',
-                                textAlign: 'center'
-                            }}>
-                                {Icons.emptySearch()}
-                                <p style={{
-                                    color: '#8a96a3',
-                                    fontSize: '15px',
-                                    marginTop: '16px'
-                                }}>
-                                    Nothing found
-                                </p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
             </div>
         </div>
     );
