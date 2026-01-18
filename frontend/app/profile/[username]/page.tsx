@@ -779,20 +779,30 @@ export default function ProfilePage() {
                 {isSubscribed && creators.length > 0 && (
                   <div style={{ background: 'white', border: '1px solid #dbdbdb', borderRadius: '4px', overflow: 'hidden' }}>
                     <div style={{ padding: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h3 style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#8a96a3', textTransform: 'uppercase' }}>FRIENDS</h3>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a96a3" strokeWidth="2" style={{ cursor: 'pointer' }}>
-                          <polyline points="18 15 12 9 6 15"></polyline>
-                        </svg>
+                        <span style={{ fontSize: '12px', color: '#8a96a3' }}>{creators.length} creators</span>
                       </div>
-                      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
-                        {/* Real Creators from DB */}
-                        {creators.map((creator, idx) => (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                        {/* Real Creators from DB - show max 8 */}
+                        {creators.slice(0, 8).map((creator, idx) => (
                           <div
                             key={creator.id || idx}
                             onClick={() => router.push(`/profile/${creator.user?.username || creator.username}`)}
-                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '70px', cursor: 'pointer' }}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '8px',
+                              cursor: 'pointer',
+                              padding: '8px',
+                              borderRadius: '8px',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                           >
+                            {/* Avatar */}
                             <div style={{ position: 'relative' }}>
                               {creator.user?.avatarUrl || creator.avatarUrl ? (
                                 <img
@@ -800,37 +810,49 @@ export default function ProfilePage() {
                                   alt={creator.displayName || creator.user?.username}
                                   referrerPolicy="no-referrer"
                                   style={{
-                                    width: '60px', height: '60px', borderRadius: '50%',
+                                    width: '56px', height: '56px', borderRadius: '50%',
                                     objectFit: 'cover', border: '2px solid #00aeef'
                                   }}
                                 />
                               ) : (
                                 <div style={{
-                                  width: '60px', height: '60px', borderRadius: '50%',
-                                  background: `linear-gradient(135deg, hsl(${idx * 60}, 70%, 60%) 0%, hsl(${idx * 60 + 30}, 70%, 50%) 100%)`,
+                                  width: '56px', height: '56px', borderRadius: '50%',
+                                  background: `linear-gradient(135deg, hsl(${idx * 45}, 70%, 60%) 0%, hsl(${idx * 45 + 30}, 70%, 50%) 100%)`,
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  color: 'white', fontWeight: 'bold', fontSize: '20px'
+                                  color: 'white', fontWeight: 'bold', fontSize: '18px',
+                                  border: '2px solid #00aeef'
                                 }}>
                                   {(creator.displayName || creator.user?.username || 'U')[0].toUpperCase()}
                                 </div>
                               )}
-                              <span style={{
-                                position: 'absolute', top: 0, right: 0,
-                                background: creator.subscriptionFee > 0 ? '#ff6b6b' : '#00aeef',
-                                color: 'white', fontSize: '9px', fontWeight: 700,
-                                padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase'
-                              }}>
-                                {creator.subscriptionFee > 0 ? `$${creator.subscriptionFee}` : 'Free'}
-                              </span>
                             </div>
-                            <div style={{ textAlign: 'center' }}>
-                              <div style={{ fontSize: '12px', fontWeight: 600, color: '#242529', display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'center', maxWidth: '70px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {(creator.displayName || creator.user?.username || 'Creator').slice(0, 10)}
+
+                            {/* Name with verified badge */}
+                            <div style={{ textAlign: 'center', width: '100%' }}>
+                              <div style={{
+                                fontSize: '11px', fontWeight: 600, color: '#242529',
+                                display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'center',
+                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                              }}>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {(creator.displayName || creator.user?.username || 'Creator').slice(0, 8)}
+                                </span>
                                 {creator.verified && (
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#00aff0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="#00aff0" style={{ flexShrink: 0 }}>
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                  </svg>
                                 )}
                               </div>
-                              <div style={{ fontSize: '10px', color: '#8a96a3' }}>@{creator.user?.username || creator.username || 'user'}</div>
+
+                              {/* Price Badge */}
+                              <div style={{
+                                marginTop: '4px',
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                color: creator.subscriptionFee > 0 ? '#ff6b6b' : '#00aeef'
+                              }}>
+                                {creator.subscriptionFee > 0 ? `$${creator.subscriptionFee}/mo` : 'Free'}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -838,6 +860,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
+
 
                 {/* Subscription Card */}
                 <div style={{ background: 'white', border: '1px solid #dbdbdb', borderRadius: '4px', overflow: 'hidden' }}>

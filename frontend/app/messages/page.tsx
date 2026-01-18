@@ -153,402 +153,402 @@ export default function MessagesPage() {
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', padding: '0 24px', gap: '24px' }}>
         <Navbar />
         <main style={{ flex: 1, display: 'flex', padding: '0', height: '100vh' }}>
-        {/* Left Panel - Conversations List */}
-        <div style={{
-          width: '360px',
-          borderRight: '1px solid #eaeaea',
-          background: 'white',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh'
-        }}>
-          {/* Header */}
+          {/* Left Panel - Conversations List */}
           <div style={{
+            width: '360px',
+            borderRight: '1px solid #eaeaea',
+            background: 'white',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '16px 20px',
-            borderBottom: '1px solid #eaeaea'
+            flexDirection: 'column',
+            height: '100vh'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Link href="/feed" style={{ color: '#1a1a2e', display: 'flex', alignItems: 'center' }}>
-                {Icons.back()}
-              </Link>
-              <h1 style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: '#1a1a2e',
-                margin: 0,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                MESSAGES
-              </h1>
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 20px',
+              borderBottom: '1px solid #eaeaea'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Link href="/feed" style={{ color: '#1a1a2e', display: 'flex', alignItems: 'center' }}>
+                  {Icons.back()}
+                </Link>
+                <h1 style={{
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  color: '#1a1a2e',
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  MESSAGES
+                </h1>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setShowSearchInput(!showSearchInput)}
+                  style={{
+                    background: showSearchInput ? '#f0f0f0' : 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#1a1a2e'
+                  }}
+                >
+                  {Icons.search()}
+                </button>
+                <button
+                  onClick={() => setShowNewConversationModal(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#1a1a2e'
+                  }}
+                >
+                  {Icons.plus()}
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+
+            {/* Search Input */}
+            {showSearchInput && (
+              <div style={{
+                padding: '12px 20px',
+                borderBottom: '1px solid #eaeaea'
+              }}>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search conversations..."
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    border: '1px solid #eaeaea',
+                    borderRadius: '25px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Sort Dropdown */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 20px',
+              borderBottom: '1px solid #eaeaea'
+            }}>
+              <span style={{ fontSize: '13px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
+                {sortOrder === 'newest' ? 'NEWEST FIRST' : 'OLDEST FIRST'}
+              </span>
               <button
-                onClick={() => setShowSearchInput(!showSearchInput)}
-                style={{
-                  background: showSearchInput ? '#f0f0f0' : 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#1a1a2e'
-                }}
-              >
-                {Icons.search()}
-              </button>
-              <button
-                onClick={() => setShowNewConversationModal(true)}
+                onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
                 style={{
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  padding: '8px',
+                  padding: '4px',
                   display: 'flex',
-                  alignItems: 'center',
-                  color: '#1a1a2e'
+                  alignItems: 'center'
                 }}
               >
-                {Icons.plus()}
+                {Icons.sort()}
               </button>
             </div>
-          </div>
 
-          {/* Search Input */}
-          {showSearchInput && (
+            {/* Filter Pills */}
             <div style={{
+              display: 'flex',
+              gap: '8px',
               padding: '12px 20px',
-              borderBottom: '1px solid #eaeaea'
+              borderBottom: '1px solid #eaeaea',
+              alignItems: 'center'
             }}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search conversations..."
-                autoFocus
+              <button
+                onClick={() => setActiveFilter('all')}
                 style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  border: '1px solid #eaeaea',
-                  borderRadius: '25px',
-                  fontSize: '14px',
-                  outline: 'none'
+                  padding: '6px 14px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  background: activeFilter === 'all' ? '#00aeef' : '#f0f0f0',
+                  color: activeFilter === 'all' ? 'white' : '#1a1a2e',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: 'pointer'
                 }}
-              />
-            </div>
-          )}
-
-          {/* Sort Dropdown */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '12px 20px',
-            borderBottom: '1px solid #eaeaea'
-          }}>
-            <span style={{ fontSize: '13px', color: '#8a96a3', fontWeight: 500, textTransform: 'uppercase' }}>
-              {sortOrder === 'newest' ? 'NEWEST FIRST' : 'OLDEST FIRST'}
-            </span>
-            <button
-              onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
-              style={{
+              >
+                All
+              </button>
+              <button style={{
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
                 alignItems: 'center'
-              }}
-            >
-              {Icons.sort()}
-            </button>
-          </div>
-
-          {/* Filter Pills */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            padding: '12px 20px',
-            borderBottom: '1px solid #eaeaea',
-            alignItems: 'center'
-          }}>
-            <button
-              onClick={() => setActiveFilter('all')}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '16px',
-                border: 'none',
-                background: activeFilter === 'all' ? '#00aeef' : '#f0f0f0',
-                color: activeFilter === 'all' ? 'white' : '#1a1a2e',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
-            >
-              All
-            </button>
-            <button style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              {Icons.pencil()}
-            </button>
-          </div>
-
-          {/* Conversations List */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {filteredConversations.length === 0 ? (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '60px 20px',
-                textAlign: 'center',
-                height: '100%'
               }}>
-                <p style={{ color: '#8a96a3', fontSize: '14px' }}>
-                  {searchQuery ? 'No conversations match your search' : 'Nothing found'}
-                </p>
-              </div>
-            ) : (
-              filteredConversations.map((conv) => (
-                <div
-                  key={conv.otherUser.id}
-                  onClick={() => setSelectedConversation(conv.otherUser.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '16px 20px',
-                    cursor: 'pointer',
-                    background: selectedConversation === conv.otherUser.id ? '#f0f8ff' : 'transparent',
-                    borderLeft: selectedConversation === conv.otherUser.id ? '3px solid #00aeef' : '3px solid transparent',
-                    transition: 'background 0.2s'
-                  }}
-                >
-                  {/* Avatar */}
+                {Icons.pencil()}
+              </button>
+            </div>
+
+            {/* Conversations List */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {filteredConversations.length === 0 ? (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '60px 20px',
+                  textAlign: 'center',
+                  height: '100%'
+                }}>
+                  <p style={{ color: '#8a96a3', fontSize: '14px' }}>
+                    {searchQuery ? 'No conversations match your search' : 'Nothing found'}
+                  </p>
+                </div>
+              ) : (
+                filteredConversations.map((conv) => (
+                  <div
+                    key={conv.otherUser.id}
+                    onClick={() => setSelectedConversation(conv.otherUser.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      background: selectedConversation === conv.otherUser.id ? '#f0f8ff' : 'transparent',
+                      borderLeft: selectedConversation === conv.otherUser.id ? '3px solid #00aeef' : '3px solid transparent',
+                      transition: 'background 0.2s'
+                    }}
+                  >
+                    {/* Avatar */}
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      background: conv.otherUser.avatarUrl
+                        ? `url(${conv.otherUser.avatarUrl}) center/cover`
+                        : '#00aeef',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: '18px',
+                      flexShrink: 0
+                    }}>
+                      {!conv.otherUser.avatarUrl && conv.otherUser.username[0].toUpperCase()}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '15px',
+                        fontWeight: 600,
+                        color: '#1a1a2e',
+                        marginBottom: '4px'
+                      }}>
+                        {conv.otherUser.username}
+                      </div>
+                      {conv.lastMessage && (
+                        <div style={{
+                          fontSize: '13px',
+                          color: '#8a96a3',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {typeof conv.lastMessage === 'object' ? (conv.lastMessage as any).content : conv.lastMessage}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Unread Badge */}
+                    {conv.unreadCount > 0 && (
+                      <div style={{
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '50%',
+                        background: '#00aeef',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {conv.unreadCount}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel - Chat or Empty State */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white' }}>
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px 24px',
+                  borderBottom: '1px solid #eaeaea'
+                }}>
                   <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '40px',
+                    height: '40px',
                     borderRadius: '50%',
-                    background: conv.otherUser.avatarUrl
-                      ? `url(${conv.otherUser.avatarUrl}) center/cover`
-                      : '#00aeef',
+                    background: '#00aeef',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: '18px',
-                    flexShrink: 0
+                    fontWeight: 'bold'
                   }}>
-                    {!conv.otherUser.avatarUrl && conv.otherUser.username[0].toUpperCase()}
+                    {getSelectedUser()?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: '15px',
-                      fontWeight: 600,
-                      color: '#1a1a2e',
-                      marginBottom: '4px'
-                    }}>
-                      {conv.otherUser.username}
+                  <div>
+                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#1a1a2e' }}>
+                      {getSelectedUser()?.username}
                     </div>
-                    {conv.lastMessage && (
-                      <div style={{
-                        fontSize: '13px',
-                        color: '#8a96a3',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
-                        {conv.lastMessage}
-                      </div>
-                    )}
+                    <div style={{ fontSize: '13px', color: '#22c55e' }}>Online</div>
                   </div>
+                </div>
 
-                  {/* Unread Badge */}
-                  {conv.unreadCount > 0 && (
+                {/* Messages Container */}
+                <div style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  {messages.length === 0 ? (
                     <div style={{
-                      width: '22px',
-                      height: '22px',
-                      borderRadius: '50%',
-                      background: '#00aeef',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 600,
+                      flex: 1,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      color: '#8a96a3'
                     }}>
-                      {conv.unreadCount}
+                      No messages yet. Start the conversation!
                     </div>
+                  ) : (
+                    messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        style={{
+                          padding: '12px 16px',
+                          borderRadius: '18px',
+                          background: msg.senderId === user?.id ? '#00aeef' : '#f0f0f0',
+                          color: msg.senderId === user?.id ? 'white' : '#1a1a2e',
+                          alignSelf: msg.senderId === user?.id ? 'flex-end' : 'flex-start',
+                          maxWidth: '70%',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {msg.content}
+                        {msg.isPaid && (
+                          <div style={{
+                            fontSize: '11px',
+                            marginTop: '4px',
+                            opacity: 0.8
+                          }}>
+                            💰 ${msg.price}
+                          </div>
+                        )}
+                      </div>
+                    ))
                   )}
                 </div>
-              ))
-            )}
-          </div>
-        </div>
 
-        {/* Right Panel - Chat or Empty State */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white' }}>
-          {selectedConversation ? (
-            <>
-              {/* Chat Header */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px 24px',
-                borderBottom: '1px solid #eaeaea'
-              }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: '#00aeef',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold'
-                }}>
-                  {getSelectedUser()?.username?.[0]?.toUpperCase() || 'U'}
+                {/* Message Input */}
+                <div style={{ padding: '16px 24px', borderTop: '1px solid #eaeaea' }}>
+                  <MessageBox
+                    receiverId={selectedConversation}
+                    onMessageSent={() => {
+                      api.get(`/messages/conversation/${selectedConversation}`).then((res) => {
+                        setMessages(res.data);
+                      });
+                    }}
+                  />
                 </div>
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#1a1a2e' }}>
-                    {getSelectedUser()?.username}
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#22c55e' }}>Online</div>
-                </div>
-              </div>
-
-              {/* Messages Container */}
+              </>
+            ) : (
+              /* Empty State - Subscribe Prompt */
               <div style={{
                 flex: 1,
-                overflowY: 'auto',
-                padding: '24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px',
+                textAlign: 'center'
               }}>
-                {messages.length === 0 ? (
-                  <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#8a96a3'
-                  }}>
-                    No messages yet. Start the conversation!
-                  </div>
-                ) : (
-                  messages.map((msg) => (
-                    <div
-                      key={msg.id}
+                {!hasSubscriptions ? (
+                  <>
+                    <p style={{
+                      fontSize: '16px',
+                      color: '#1a1a2e',
+                      maxWidth: '300px',
+                      lineHeight: '1.5'
+                    }}>
+                      Please subscribe to a creator to access this feature.
+                    </p>
+                    <Link
+                      href="/feed"
                       style={{
-                        padding: '12px 16px',
-                        borderRadius: '18px',
-                        background: msg.senderId === user?.id ? '#00aeef' : '#f0f0f0',
-                        color: msg.senderId === user?.id ? 'white' : '#1a1a2e',
-                        alignSelf: msg.senderId === user?.id ? 'flex-end' : 'flex-start',
-                        maxWidth: '70%',
-                        fontSize: '14px'
+                        marginTop: '20px',
+                        padding: '12px 28px',
+                        background: '#00aeef',
+                        color: 'white',
+                        borderRadius: '25px',
+                        textDecoration: 'none',
+                        fontSize: '14px',
+                        fontWeight: 600
                       }}
                     >
-                      {msg.content}
-                      {msg.isPaid && (
-                        <div style={{
-                          fontSize: '11px',
-                          marginTop: '4px',
-                          opacity: 0.8
-                        }}>
-                          💰 ${msg.price}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Message Input */}
-              <div style={{ padding: '16px 24px', borderTop: '1px solid #eaeaea' }}>
-                <MessageBox
-                  receiverId={selectedConversation}
-                  onMessageSent={() => {
-                    api.get(`/messages/conversation/${selectedConversation}`).then((res) => {
-                      setMessages(res.data);
-                    });
-                  }}
-                />
-              </div>
-            </>
-          ) : (
-            /* Empty State - Subscribe Prompt */
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '40px',
-              textAlign: 'center'
-            }}>
-              {!hasSubscriptions ? (
-                <>
+                      Discover Creators
+                    </Link>
+                  </>
+                ) : (
                   <p style={{
                     fontSize: '16px',
-                    color: '#1a1a2e',
-                    maxWidth: '300px',
-                    lineHeight: '1.5'
+                    color: '#8a96a3'
                   }}>
-                    Please subscribe to a creator to access this feature.
+                    Select a conversation to start messaging
                   </p>
-                  <Link
-                    href="/feed"
-                    style={{
-                      marginTop: '20px',
-                      padding: '12px 28px',
-                      background: '#00aeef',
-                      color: 'white',
-                      borderRadius: '25px',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      fontWeight: 600
-                    }}
-                  >
-                    Discover Creators
-                  </Link>
-                </>
-              ) : (
-                <p style={{
-                  fontSize: '16px',
-                  color: '#8a96a3'
-                }}>
-                  Select a conversation to start messaging
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
 
-      {/* New Conversation Modal */}
-      <NewConversationModal
-        isOpen={showNewConversationModal}
-        onClose={() => setShowNewConversationModal(false)}
-        onConversationStarted={handleNewConversation}
-      />
+        {/* New Conversation Modal */}
+        <NewConversationModal
+          isOpen={showNewConversationModal}
+          onClose={() => setShowNewConversationModal(false)}
+          onConversationStarted={handleNewConversation}
+        />
       </div>
     </div>
   );
