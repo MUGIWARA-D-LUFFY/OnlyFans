@@ -106,27 +106,37 @@ export class PostsService {
       },
     });
 
-    const creatorIds = subscriptions.map((sub) => sub.creatorId);
-
-    if (creatorIds.length === 0) {
-      return {
-        posts: [],
-        total: 0,
-        page,
-        limit,
-      };
-    }
+    const subscribedCreatorIds = subscriptions.map((sub) => sub.creatorId);
+    const hasSubscriptions = subscribedCreatorIds.length > 0;
 
     const skip = (page - 1) * limit;
 
+    let where: any;
+
+    if (hasSubscriptions) {
+      // User has subscriptions: show posts ONLY from subscribed creators
+      // Include FREE and SUBSCRIBER posts (no PPV filter needed as user is subscribed)
+      where = {
+        creatorId: {
+          in: subscribedCreatorIds,
+        },
+        isPaid: false, // Exclude PPV posts
+      };
+    } else {
+      // User has NO subscriptions: show recent posts from all creators
+      // Include FREE and SUBSCRIBER posts, exclude PPV
+      where = {
+        isPaid: false, // Exclude PPV posts
+        OR: [
+          { visibility: 'PUBLIC' },
+          { visibility: 'SUBSCRIBERS' },
+        ],
+      };
+    }
+
     const [posts, total] = await Promise.all([
       this.prisma.post.findMany({
-        where: {
-          creatorId: {
-            in: creatorIds,
-          },
-          isPaid: false, // Only show free posts in feed
-        },
+        where,
         include: {
           creator: {
             include: {
@@ -146,18 +156,34 @@ export class PostsService {
         skip,
         take: limit,
       }),
-      this.prisma.post.count({
-        where: {
-          creatorId: {
-            in: creatorIds,
-          },
-          isPaid: false,
-        },
-      }),
+      this.prisma.post.count({ where }),
     ]);
 
+    // Annotate posts with access info
+    const annotatedPosts = posts.map(post => {
+      const isSubscribedToCreator = subscribedCreatorIds.includes(post.creatorId);
+
+      // Determine lock status
+      if (post.visibility === 'SUBSCRIBERS' && !isSubscribedToCreator) {
+        return {
+          ...post,
+          isLocked: true,
+          accessLevel: 'SUBSCRIBER',
+          hasPurchased: false,
+        };
+      }
+
+      // Free/PUBLIC posts are always visible
+      return {
+        ...post,
+        isLocked: false,
+        accessLevel: 'FREE',
+        hasPurchased: false,
+      };
+    });
+
     return {
-      posts,
+      posts: annotatedPosts,
       total,
       page,
       limit,

@@ -8,6 +8,7 @@ import api from '../../../services/api';
 import { postService } from '../../../services/post.service';
 import { subscriptionService } from '../../../services/subscription.service';
 import { paymentService } from '../../../services/payment.service';
+import { useAuthGuard } from '../../../utils/authGuard';
 
 // Helper to convert Google Drive view links to direct embed links
 const getEmbedUrl = (url: string | null | undefined) => {
@@ -22,6 +23,7 @@ const getEmbedUrl = (url: string | null | undefined) => {
 };
 
 export default function ProfilePage() {
+  const { user, isLoading: authLoading } = useAuthGuard(true);
   const params = useParams();
   const router = useRouter();
   const username = params.username as string;
@@ -214,6 +216,16 @@ export default function ProfilePage() {
 
     return true;
   });
+
+  // Wait for auth to complete first
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', border: '3px solid #f3f3f3', borderTop: '3px solid #00aff0', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
