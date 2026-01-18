@@ -576,13 +576,14 @@ export default function PostCard({ post }: PostCardProps) {
           borderRadius: '12px',
           overflow: 'hidden',
           marginBottom: '16px',
-          background: !post.mediaUrl ? '#f8f9fa' : 'transparent',
-          minHeight: !post.mediaUrl ? '300px' : 'auto',
-          display: !post.mediaUrl ? 'flex' : 'block',
+          background: (post.isLocked || !post.mediaUrl) ? '#f8f9fa' : 'transparent',
+          minHeight: (post.isLocked || !post.mediaUrl) ? '300px' : 'auto',
+          display: (post.isLocked || !post.mediaUrl) ? 'flex' : 'block',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          {!post.mediaUrl ? (
+          {/* Show lock screen if post is locked OR no mediaUrl */}
+          {(post.isLocked || !post.mediaUrl) ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', width: '100%' }}>
               <div style={{
                 fontSize: '64px',
@@ -625,7 +626,7 @@ export default function PostCard({ post }: PostCardProps) {
                   maxWidth: '300px',
                   textTransform: 'uppercase'
                 }}>
-                {isUnlockLoading ? 'PROCESSING...' : post.isPaid ? `UNLOCK POST $${post.price?.toFixed(2) || '0.00'}` : "SUBSCRIBE TO SEE USER'S POSTS"}
+                {isUnlockLoading ? 'PROCESSING...' : post.isPaid || post.accessLevel === 'PPV' ? `UNLOCK POST $${post.price?.toFixed(2) || '0.00'}` : "SUBSCRIBE TO SEE USER'S POSTS"}
               </button>
             </div>
           ) : post.mediaType === 'image' ? (

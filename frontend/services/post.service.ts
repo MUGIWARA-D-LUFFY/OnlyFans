@@ -18,6 +18,10 @@ export interface Post {
       avatarUrl?: string;
     };
   };
+  // Access control fields from API
+  isLocked?: boolean;
+  accessLevel?: 'FREE' | 'SUBSCRIBER' | 'PPV';
+  hasPurchased?: boolean;
 }
 
 export interface CreatePostData {
